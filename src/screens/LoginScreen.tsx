@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
-import {View, Text, Button, StyleSheet, TextInput, Alert} from 'react-native';
+import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
+import WheelPicker from 'react-native-wheel-picker-expo';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {testDeviceApi} from '@/api/device';
@@ -9,86 +10,74 @@ type RootStackParamList = {
   Login: undefined;
 };
 
+const DIGIT_OPTIONS = Array.from({length: 10}, (_, i) => i.toString());
+
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [pairCode, setPairCode] = useState('');
-  const [inputCode, setInputCode] = useState('');
+  const [digits, setDigits] = useState(Array(6).fill('0'));
   const [loading, setLoading] = useState(false);
 
-  // 获取配对码
-  const fetchPairCode = async () => {
+  // 点击配对
+  const handlePair = async () => {
     setLoading(true);
     try {
-      const res = await testDeviceApi({action: 'testDeviceAPI', pm: '654321'});
-      console.log('fetchPairCode res:', res);
-      if (res.status === 'SUCCESS' && res.data) {
-        const match = String(res.data).match(/\d{6}/);
-        setPairCode(match ? match[0] : res.data);
-      } else {
-        Alert.alert('获取配对码失败', res.reason || '未知错误');
-      }
-    } catch (e: any) {
-      Alert.alert('获取配对码失败', '请重试');
-      console.log('fetchPairCode error:', e?.response, e?.message, e);
-    }
-    setLoading(false);
-  };
-
-  // 登录
-  const handleLogin = async () => {
-    setLoading(true);
-    try {
+      const inputCode = digits.join('');
       const res = await testDeviceApi({action: 'login', pm: inputCode});
-      console.log('handleLogin res:', res);
       if (res.status === 'SUCCESS') {
-        Alert.alert('登录成功', '配对成功，正在进入主页', [
+        Alert.alert('配对成功', '正在进入主页', [
           {
             text: '确定',
             onPress: () => navigation.replace('Home'),
           },
         ]);
       } else {
-        Alert.alert('登录失败', res.reason || '配对码错误，请重新输入');
+        Alert.alert('配对失败', res.reason || '配对码错误，请重新输入');
       }
     } catch (e) {
-      Alert.alert('登录失败', '网络异常，请重试');
-      console.log('handleLogin error:', e);
+      Alert.alert('配对失败', '网络异常，请重试');
     }
     setLoading(false);
   };
 
+  // 渲染6个数字滑轮
+  const renderWheels = () => (
+    <View style={styles.wheelRow}>
+      {digits.map((digit, idx) => (
+        <View key={idx} style={styles.wheelWrapper}>
+          <Text style={styles.wheelDigit}>{digit}</Text>
+          <WheelPicker
+            selectedIndex={parseInt(digit, 10)}
+            options={DIGIT_OPTIONS}
+            onChange={({index}) => {
+              const newDigits = [...digits];
+              newDigits[idx] = index.toString();
+              setDigits(newDigits);
+            }}
+            containerStyle={styles.wheel}
+            itemStyle={styles.wheelItem}
+            selectedIndicatorStyle={styles.selectedIndicator}
+          />
+        </View>
+      ))}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Wear OS 配对登录</Text>
-      {!pairCode ? (
-        <Button
-          title={loading ? '获取中...' : '获取配对码'}
-          onPress={fetchPairCode}
+      <Text style={styles.title}>请输入6位配对码</Text>
+      {renderWheels()}
+      <View style={styles.buttonBox}>
+        <TouchableOpacity
+          style={styles.pairButton}
+          onPress={handlePair}
           disabled={loading}
-        />
-      ) : (
-        <View style={styles.innerBox}>
-          <Text style={styles.pairCode}>{pairCode}</Text>
-          <Text style={styles.tip}>请让家长端输入此配对码</Text>
-          <TextInput
-            style={styles.input}
-            value={inputCode}
-            onChangeText={setInputCode}
-            keyboardType="number-pad"
-            maxLength={6}
-            placeholder="输入家长端返回的确认码"
-            placeholderTextColor="#bbb"
-          />
-          <View style={styles.buttonBox}>
-            <Button
-              title={loading ? '登录中...' : '登录'}
-              onPress={handleLogin}
-              disabled={loading || inputCode.length !== 6}
-            />
-          </View>
-        </View>
-      )}
+          activeOpacity={0.7}>
+          <Text style={styles.pairButtonText}>
+            {loading ? '配对中...' : '配对'}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -96,49 +85,65 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 6,
     backgroundColor: '#fff',
   },
   title: {
     fontSize: 16,
-    marginBottom: 8,
+    marginTop: 18,
+    marginBottom: 10,
     fontWeight: 'bold',
+    textAlign: 'center',
   },
-  innerBox: {
+  wheelRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    marginBottom: 12,
+  },
+  wheelWrapper: {
+    marginHorizontal: 2,
     alignItems: 'center',
-    width: 160,
-    padding: 8,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
   },
-  pairCode: {
+  wheelDigit: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginVertical: 8,
+    color: '#1976d2',
+    marginBottom: -4,
+  },
+  wheel: {
+    width: 32,
+    height: 90,
+    backgroundColor: 'transparent',
+  },
+  wheelItem: {
+    fontSize: 18,
     color: '#333',
-  },
-  tip: {
-    fontSize: 12,
-    color: '#888',
-    marginBottom: 8,
     textAlign: 'center',
   },
-  input: {
-    width: 110,
-    height: 34,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    textAlign: 'center',
-    fontSize: 16,
-    marginBottom: 8,
-    backgroundColor: '#f9f9f9',
+  selectedIndicator: {
+    backgroundColor: 'transparent',
   },
   buttonBox: {
     width: '100%',
-    marginTop: 2,
+    alignItems: 'center',
+    marginBottom: 18,
+  },
+  pairButton: {
+    backgroundColor: '#2196f3',
+    borderRadius: 22,
+    paddingVertical: 8,
+    paddingHorizontal: 32,
+    minWidth: 100,
+    alignItems: 'center',
+  },
+  pairButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    letterSpacing: 2,
   },
 });
 
