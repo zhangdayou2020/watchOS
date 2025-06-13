@@ -1,6 +1,11 @@
 import request from '@/utils/request';
 
-export function testDeviceApi(params: {action: string; pm: string}) {
+export interface TestDeviceApiParams {
+  action: string;
+  pm: string;
+}
+
+export function testDeviceApi(params: TestDeviceApiParams) {
   const formData = new FormData();
   Object.entries(params).forEach(([key, value]) => {
     formData.append(key, value);

@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, Button, StyleSheet, TextInput, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {testDeviceApi} from '@/api/device';
 
 type RootStackParamList = {
   Home: undefined;
@@ -15,36 +16,41 @@ const LoginScreen = () => {
   const [inputCode, setInputCode] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 模拟获取配对码接口
+  // 获取配对码（真实接口）
   const fetchPairCode = async () => {
     setLoading(true);
-    setTimeout(() => {
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
-      setPairCode(code);
-      setLoading(false);
-    }, 1000);
+    try {
+      // 这里 action 和 pm 字段根据后端实际要求填写
+      const res = await testDeviceApi({action: 'testDeviceApi', pm: ''});
+      // 假设后端返回 { code: '123456' }
+      setPairCode(res.code || '');
+    } catch (e) {
+      Alert.alert('获取配对码失败', '请重试');
+    }
+    setLoading(false);
   };
 
-  // 模拟登录接口
+  // 登录（真实接口）
   const handleLogin = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      if (inputCode.length === 6) {
-        if (inputCode === pairCode) {
-          Alert.alert('登录成功', '配对成功，正在进入主页', [
-            {
-              text: '确定',
-              onPress: () => navigation.replace('Home'),
-            },
-          ]);
-        } else {
-          Alert.alert('登录失败', '配对码错误，请重新输入');
-        }
+    try {
+      // 这里 action 和 pm 字段根据后端实际要求填写
+      const res = await testDeviceApi({action: 'testDeviceApi', pm: inputCode});
+      // 假设后端返回 { success: true }
+      if (res.success) {
+        Alert.alert('登录成功', '配对成功，正在进入主页', [
+          {
+            text: '确定',
+            onPress: () => navigation.replace('Home'),
+          },
+        ]);
       } else {
-        Alert.alert('提示', '请输入6位配对码');
+        Alert.alert('登录失败', res.message || '配对码错误，请重新输入');
       }
-    }, 1000);
+    } catch (e) {
+      Alert.alert('登录失败', '网络异常，请重试');
+    }
+    setLoading(false);
   };
 
   return (
