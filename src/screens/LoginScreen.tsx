@@ -16,28 +16,32 @@ const LoginScreen = () => {
   const [inputCode, setInputCode] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 获取配对码（真实接口）
+  // 获取配对码
   const fetchPairCode = async () => {
     setLoading(true);
     try {
-      // 这里 action 和 pm 字段根据后端实际要求填写
-      const res = await testDeviceApi({action: 'testDeviceApi', pm: ''});
-      // 假设后端返回 { code: '123456' }
-      setPairCode(res.code || '');
-    } catch (e) {
+      const res = await testDeviceApi({action: 'testDeviceAPI', pm: '654321'});
+      console.log('fetchPairCode res:', res);
+      if (res.status === 'SUCCESS' && res.data) {
+        const match = String(res.data).match(/\d{6}/);
+        setPairCode(match ? match[0] : res.data);
+      } else {
+        Alert.alert('获取配对码失败', res.reason || '未知错误');
+      }
+    } catch (e: any) {
       Alert.alert('获取配对码失败', '请重试');
+      console.log('fetchPairCode error:', e?.response, e?.message, e);
     }
     setLoading(false);
   };
 
-  // 登录（真实接口）
+  // 登录
   const handleLogin = async () => {
     setLoading(true);
     try {
-      // 这里 action 和 pm 字段根据后端实际要求填写
-      const res = await testDeviceApi({action: 'testDeviceApi', pm: inputCode});
-      // 假设后端返回 { success: true }
-      if (res.success) {
+      const res = await testDeviceApi({action: 'login', pm: inputCode});
+      console.log('handleLogin res:', res);
+      if (res.status === 'SUCCESS') {
         Alert.alert('登录成功', '配对成功，正在进入主页', [
           {
             text: '确定',
@@ -45,10 +49,11 @@ const LoginScreen = () => {
           },
         ]);
       } else {
-        Alert.alert('登录失败', res.message || '配对码错误，请重新输入');
+        Alert.alert('登录失败', res.reason || '配对码错误，请重新输入');
       }
     } catch (e) {
       Alert.alert('登录失败', '网络异常，请重试');
+      console.log('handleLogin error:', e);
     }
     setLoading(false);
   };
@@ -72,7 +77,7 @@ const LoginScreen = () => {
             onChangeText={setInputCode}
             keyboardType="number-pad"
             maxLength={6}
-            placeholder="输入家长端配对码"
+            placeholder="输入家长端返回的确认码"
             placeholderTextColor="#bbb"
           />
           <View style={styles.buttonBox}>
