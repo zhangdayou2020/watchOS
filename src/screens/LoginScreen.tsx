@@ -1,73 +1,83 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, Button, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, Button, StyleSheet, TextInput, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import QRCode from 'react-native-qrcode-svg';
 
-// 定义导航参数类型
 type RootStackParamList = {
   Home: undefined;
   Login: undefined;
 };
 
-const CODE_EXPIRE_SECONDS = 60;
-
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [code, setCode] = useState('');
+  const [pairCode, setPairCode] = useState('');
+  const [inputCode, setInputCode] = useState('');
   const [loading, setLoading] = useState(false);
-  const [countdown, setCountdown] = useState(0);
 
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (countdown > 0) {
-      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-    } else if (countdown === 0 && code) {
-      setCode('');
-    }
-    return () => clearTimeout(timer);
-  }, [countdown, code]);
-
-  const generateCode = () => {
+  // 模拟获取配对码接口
+  const fetchPairCode = async () => {
     setLoading(true);
     setTimeout(() => {
-      const newCode = Math.floor(100000 + Math.random() * 900000).toString();
-      setCode(newCode);
-      setCountdown(CODE_EXPIRE_SECONDS);
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      setPairCode(code);
       setLoading(false);
     }, 1000);
   };
 
-  // 模拟扫码成功
-  const mockScanSuccess = () => {
-    navigation.replace('Home');
+  // 模拟登录接口
+  const handleLogin = async () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      if (inputCode.length === 6) {
+        if (inputCode === pairCode) {
+          Alert.alert('登录成功', '配对成功，正在进入主页', [
+            {
+              text: '确定',
+              onPress: () => navigation.replace('Home'),
+            },
+          ]);
+        } else {
+          Alert.alert('登录失败', '配对码错误，请重新输入');
+        }
+      } else {
+        Alert.alert('提示', '请输入6位配对码');
+      }
+    }, 1000);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Wear OS 登录</Text>
-      <Button
-        title={loading ? '加载中...' : code ? '重新生成验证码' : '生成验证码'}
-        onPress={generateCode}
-        disabled={loading}
-      />
-      {code ? (
-        <View style={styles.qrBox}>
-          <Text style={styles.code}>{code}</Text>
-          <QRCode value={code} size={80} />
-          <Text style={styles.qrTip}>
-            请用家长端扫码登录（{countdown}秒后失效）
-          </Text>
-          <View style={styles.mockScanButtonContainer}>
+      <Text style={styles.title}>Wear OS 配对登录</Text>
+      {!pairCode ? (
+        <Button
+          title={loading ? '获取中...' : '获取配对码'}
+          onPress={fetchPairCode}
+          disabled={loading}
+        />
+      ) : (
+        <View style={styles.innerBox}>
+          <Text style={styles.pairCode}>{pairCode}</Text>
+          <Text style={styles.tip}>请让家长端输入此配对码</Text>
+          <TextInput
+            style={styles.input}
+            value={inputCode}
+            onChangeText={setInputCode}
+            keyboardType="number-pad"
+            maxLength={6}
+            placeholder="输入家长端配对码"
+            placeholderTextColor="#bbb"
+          />
+          <View style={styles.buttonBox}>
             <Button
-              title="模拟扫码成功"
-              onPress={mockScanSuccess}
-              color="#4CAF50"
+              title={loading ? '登录中...' : '登录'}
+              onPress={handleLogin}
+              disabled={loading || inputCode.length !== 6}
             />
           </View>
         </View>
-      ) : null}
+      )}
     </View>
   );
 };
@@ -77,36 +87,47 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 8,
+    padding: 6,
     backgroundColor: '#fff',
   },
   title: {
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 16,
+    marginBottom: 8,
+    fontWeight: 'bold',
   },
-  qrBox: {
+  innerBox: {
     alignItems: 'center',
-    marginTop: 16,
-    padding: 12,
-    borderRadius: 12,
+    width: 160,
+    padding: 8,
+    borderRadius: 10,
     backgroundColor: '#f9f9f9',
-    width: 180,
   },
-  code: {
+  pairCode: {
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginVertical: 8,
     color: '#333',
   },
-  qrTip: {
-    marginTop: 8,
-    color: '#888',
+  tip: {
     fontSize: 12,
+    color: '#888',
+    marginBottom: 8,
     textAlign: 'center',
   },
-  mockScanButtonContainer: {
-    marginTop: 10,
-    width: '90%',
+  input: {
+    width: 110,
+    height: 34,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 16,
+    marginBottom: 8,
+    backgroundColor: '#f9f9f9',
+  },
+  buttonBox: {
+    width: '100%',
+    marginTop: 2,
   },
 });
 
