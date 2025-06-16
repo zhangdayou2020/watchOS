@@ -2,7 +2,7 @@ import request from '@/utils/request';
 
 export interface TestDeviceApiParams {
   action: string;
-  pm: string;
+  code: string;
 }
 
 export function testDeviceApi(params: TestDeviceApiParams) {
@@ -20,6 +20,24 @@ export function testDeviceApi(params: TestDeviceApiParams) {
     })
     .catch(err => {
       console.log('api error:', err);
+      throw err;
+    });
+}
+export function testWatchApi(params: {action: string; pm: string}) {
+  const formData = new FormData();
+  Object.entries(params).forEach(([key, value]) => {
+    formData.append(key, value);
+  });
+  return request
+    .post('/pm/php/data.php', formData, {
+      headers: {'Content-Type': 'multipart/form-data'},
+    })
+    .then(res => {
+      console.log('testWatchAPI success:', res);
+      return res;
+    })
+    .catch(err => {
+      console.log('testWatchAPI error:', err);
       throw err;
     });
 }

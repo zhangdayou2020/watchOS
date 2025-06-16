@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {testDeviceApi} from '@/api/device';
+import {useLoginWithPairCode} from '@/hooks/useLoginWithPairCode';
 
 type RootStackParamList = {
   Home: undefined;
@@ -21,6 +21,7 @@ const LoginScreen = () => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const loginWithPairCode = useLoginWithPairCode();
 
   const handlePress = (key: string) => {
     if (key === 'del') {
@@ -39,19 +40,14 @@ const LoginScreen = () => {
   const handlePair = async () => {
     setLoading(true);
     try {
-      const res = await testDeviceApi({action: 'testDeviceAPI', pm: code});
-      console.log('配对接口返回:', res);
-      if (res.status === 'SUCCESS') {
-        Alert.alert('配对成功', '正在进入主页', [
-          {text: '确定', onPress: () => navigation.replace('Home')},
-        ]);
-      } else {
-        console.log('配对接口异常:', res);
-        Alert.alert('配对失败', res.reason || '配对码错误，请重新输入');
-      }
-    } catch (e) {
-      console.log('配对接口异常:', e);
-      Alert.alert('配对失败', '网络异常，请重试');
+      const userData = await loginWithPairCode(code);
+      Alert.alert('配对成功', '正在进入主页', [
+        {text: '确定', onPress: () => navigation.replace('Home')},
+      ]);
+      // 可在此处做更多后续逻辑，如初始化用户数据
+      console.log('配对成功，用户数据:', userData);
+    } catch (e: any) {
+      Alert.alert('配对失败', e.message || '网络异常，请重试');
     }
     setLoading(false);
   };
@@ -109,13 +105,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 10, // 更靠上
+    paddingTop: 10,
   },
   codeBox: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: 8, // 更紧凑
-    marginTop: 2, // 更靠上
+    marginBottom: 8,
+    marginTop: 2,
   },
   codeDigitBox: {
     width: 18,

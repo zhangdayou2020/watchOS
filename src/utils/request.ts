@@ -3,6 +3,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from 'axios';
+import store from '@/store';
 
 const baseURL = 'https://pmuat.handlebook.com.hk';
 
@@ -11,15 +12,32 @@ const instance: AxiosInstance = axios.create({
   timeout: 10000,
 });
 
+// 需要跳过 token 注入的接口（如配对/登录等）
+const noTokenApis = [
+  '/pm/php/data.php?action=testDeviceAPI',
+  // 你可以继续添加其它不需要 token 的接口
+];
+
 // 请求拦截器
 instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    // 可在此添加 token 等通用 header
+    const url = config.url || '';
+    const needToken = !noTokenApis.some(api => url.includes(api));
+    const token = store.getState().token.token;
+    if (token && needToken) {
+      config.headers = {
+        ...config.headers,
+        Cookie: `token="${token}"`,
+        Accept: '*/*',
+        // 你可以根据需要添加 User-Agent 等其它头部
+      };
+    }
     return config;
   },
   error => Promise.reject(error),
 );
 
+// 响应拦截器，兼容后端 warning 和字符串 JSON
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
     let data = response.data;
