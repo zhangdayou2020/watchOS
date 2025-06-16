@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, Alert, TouchableOpacity} from 'react-native';
-import WheelPicker from 'react-native-wheel-picker-expo';
+import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {testDeviceApi} from '@/api/device';
@@ -10,73 +9,95 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-const DIGIT_OPTIONS = Array.from({length: 10}, (_, i) => i.toString());
+const KEYS = [
+  ['1', '2', '3'],
+  ['4', '5', '6'],
+  ['7', '8', '9'],
+  ['del', '0', 'ok'],
+];
 
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const [digits, setDigits] = useState(Array(6).fill('0'));
+  const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // 点击配对
+  const handlePress = (key: string) => {
+    if (key === 'del') {
+      setCode(code.slice(0, -1));
+    } else if (key === 'ok') {
+      if (code.length === 6) {
+        handlePair();
+      } else {
+        Alert.alert('请输入6位配对码');
+      }
+    } else if (code.length < 6) {
+      setCode(code + key);
+    }
+  };
+
   const handlePair = async () => {
     setLoading(true);
     try {
-      const inputCode = digits.join('');
-      const res = await testDeviceApi({action: 'login', pm: inputCode});
+      const res = await testDeviceApi({action: 'testDeviceAPI', pm: code});
+      console.log('配对接口返回:', res);
       if (res.status === 'SUCCESS') {
         Alert.alert('配对成功', '正在进入主页', [
-          {
-            text: '确定',
-            onPress: () => navigation.replace('Home'),
-          },
+          {text: '确定', onPress: () => navigation.replace('Home')},
         ]);
       } else {
+        console.log('配对接口异常:', res);
         Alert.alert('配对失败', res.reason || '配对码错误，请重新输入');
       }
     } catch (e) {
+      console.log('配对接口异常:', e);
       Alert.alert('配对失败', '网络异常，请重试');
     }
     setLoading(false);
   };
 
-  // 渲染6个数字滑轮
-  const renderWheels = () => (
-    <View style={styles.wheelRow}>
-      {digits.map((digit, idx) => (
-        <View key={idx} style={styles.wheelWrapper}>
-          <Text style={styles.wheelDigit}>{digit}</Text>
-          <WheelPicker
-            selectedIndex={parseInt(digit, 10)}
-            options={DIGIT_OPTIONS}
-            onChange={({index}) => {
-              const newDigits = [...digits];
-              newDigits[idx] = index.toString();
-              setDigits(newDigits);
-            }}
-            containerStyle={styles.wheel}
-            itemStyle={styles.wheelItem}
-            selectedIndicatorStyle={styles.selectedIndicator}
-          />
-        </View>
-      ))}
-    </View>
-  );
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>请输入6位配对码</Text>
-      {renderWheels()}
-      <View style={styles.buttonBox}>
-        <TouchableOpacity
-          style={styles.pairButton}
-          onPress={handlePair}
-          disabled={loading}
-          activeOpacity={0.7}>
-          <Text style={styles.pairButtonText}>
-            {loading ? '配对中...' : '配对'}
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.codeBox}>
+        {Array.from({length: 6}).map((_, idx) => (
+          <View key={idx} style={styles.codeDigitBox}>
+            <Text style={styles.codeDigit}>{code[idx] ? code[idx] : '_'}</Text>
+          </View>
+        ))}
+      </View>
+      <View style={styles.keyboard}>
+        {KEYS.map((row, rowIdx) => (
+          <View key={rowIdx} style={styles.keyRow}>
+            {row.map(key => (
+              <TouchableOpacity
+                key={key}
+                style={[
+                  styles.key,
+                  key === 'ok'
+                    ? styles.okKey
+                    : key === 'del'
+                    ? styles.delKey
+                    : null,
+                  key === 'ok' && code.length !== 6 ? styles.keyDisabled : null,
+                ]}
+                onPress={() => handlePress(key)}
+                disabled={loading || (key === 'ok' && code.length !== 6)}
+                activeOpacity={0.7}>
+                <Text
+                  style={[
+                    styles.keyText,
+                    key === 'ok'
+                      ? styles.okKeyText
+                      : key === 'del'
+                      ? styles.delKeyText
+                      : null,
+                  ]}>
+                  {key === 'del' ? '⌫' : key === 'ok' ? '配对' : key}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -85,65 +106,80 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#fff',
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 6,
-    backgroundColor: '#fff',
+    paddingTop: 10, // 更靠上
   },
-  title: {
-    fontSize: 16,
-    marginTop: 18,
-    marginBottom: 10,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  wheelRow: {
+  codeBox: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'flex-end',
-    marginBottom: 12,
+    marginBottom: 8, // 更紧凑
+    marginTop: 2, // 更靠上
   },
-  wheelWrapper: {
-    marginHorizontal: 2,
+  codeDigitBox: {
+    width: 18,
+    height: 22,
+    marginHorizontal: 1,
+    borderBottomWidth: 2,
+    borderColor: '#1976d2',
     alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    backgroundColor: '#f8fafd',
+    elevation: 1,
   },
-  wheelDigit: {
-    fontSize: 22,
+  codeDigit: {
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#1976d2',
-    marginBottom: -4,
-  },
-  wheel: {
-    width: 32,
-    height: 90,
-    backgroundColor: 'transparent',
-  },
-  wheelItem: {
-    fontSize: 18,
-    color: '#333',
     textAlign: 'center',
   },
-  selectedIndicator: {
-    backgroundColor: 'transparent',
-  },
-  buttonBox: {
-    width: '100%',
+  keyboard: {
+    width: 130,
     alignItems: 'center',
-    marginBottom: 18,
+    justifyContent: 'center',
+    marginTop: 2,
   },
-  pairButton: {
-    backgroundColor: '#2196f3',
-    borderRadius: 22,
-    paddingVertical: 8,
-    paddingHorizontal: 32,
-    minWidth: 100,
+  keyRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+  key: {
+    width: 30,
+    height: 30,
+    marginHorizontal: 1,
+    backgroundColor: '#f2f2f2',
+    borderRadius: 15,
+    justifyContent: 'center',
     alignItems: 'center',
+    elevation: 1,
   },
-  pairButtonText: {
-    color: '#fff',
-    fontSize: 18,
+  keyText: {
+    fontSize: 15,
     fontWeight: 'bold',
-    letterSpacing: 2,
+    color: '#1976d2',
+  },
+  okKey: {
+    backgroundColor: '#2196f3',
+    borderRadius: 15,
+  },
+  okKeyText: {
+    color: '#fff',
+    fontSize: 14,
+    letterSpacing: 1,
+  },
+  delKey: {
+    backgroundColor: '#eee',
+    borderRadius: 15,
+  },
+  delKeyText: {
+    color: '#888',
+    fontSize: 15,
+  },
+  keyDisabled: {
+    backgroundColor: '#b0c4de',
   },
 });
 

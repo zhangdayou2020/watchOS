@@ -20,9 +20,20 @@ instance.interceptors.request.use(
   error => Promise.reject(error),
 );
 
-// 响应拦截器
 instance.interceptors.response.use(
-  (response: AxiosResponse) => response.data,
+  (response: AxiosResponse) => {
+    let data = response.data;
+    if (typeof data === 'string') {
+      const lines = data.trim().split('\n');
+      const lastLine = lines[lines.length - 1].trim();
+      try {
+        data = JSON.parse(lastLine);
+      } catch (e) {
+        // 解析失败，保留原始字符串
+      }
+    }
+    return data;
+  },
   error => Promise.reject(error),
 );
 
