@@ -14,7 +14,7 @@ const HomeScreen = () => {
   useEffect(() => {
     console.log('当前 token:', token);
     // 这里 pm 参数请替换为实际需要的配对码
-    testWatchApi({action: 'testWatchAPI', pm: '086730'})
+    testWatchApi({action: 'testWatchAPI', pm: '603434'})
       .then(res => {
         Alert.alert('验证token接口返回', JSON.stringify(res));
         console.log('验证token接口返回:', res);
