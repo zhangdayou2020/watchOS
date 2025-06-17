@@ -2,7 +2,10 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useDispatch} from 'react-redux';
 import {useLoginWithPairCode} from '@/hooks/useLoginWithPairCode';
+import {setUserInfo} from '@/store/userSlice';
+import {saveUserToStorage} from '@/utils/storage';
 
 type RootStackParamList = {
   Home: undefined;
@@ -19,6 +22,7 @@ const KEYS = [
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const loginWithPairCode = useLoginWithPairCode();
@@ -41,10 +45,11 @@ const LoginScreen = () => {
     setLoading(true);
     try {
       const userData = await loginWithPairCode(code);
+      dispatch(setUserInfo(userData));
+      saveUserToStorage(userData);
       Alert.alert('配对成功', '正在进入主页', [
         {text: '确定', onPress: () => navigation.replace('Home')},
       ]);
-      // 可在此处做更多后续逻辑，如初始化用户数据
       console.log('配对成功，用户数据:', userData);
     } catch (e: any) {
       Alert.alert('配对失败', e.message || '网络异常，请重试');

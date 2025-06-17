@@ -1,6 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-interface UserInfo {
+export interface UserInfo {
   loginid: string;
   cid: string;
   cname: string;
@@ -20,7 +20,6 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUserInfo(state, action: PayloadAction<UserInfo>) {
-      // 直接返回 action.payload，immer 会处理 state 替换
       return action.payload;
     },
     clearUserInfo() {

@@ -29,7 +29,6 @@ instance.interceptors.request.use(
         ...config.headers,
         Cookie: `token="${token}"`,
         Accept: '*/*',
-        // 你可以根据需要添加 User-Agent 等其它头部
       };
     }
     return config;
