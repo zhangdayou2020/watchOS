@@ -46,6 +46,9 @@ const LoginScreen = () => {
     try {
       const userData = await loginWithPairCode(code);
       dispatch(setUserInfo(userData));
+      // const tasks = await getTodayTaskByChild({});
+      // dispatch(setTasks(tasks));
+
       saveUserToStorage(userData);
       Alert.alert('配对成功', '正在进入主页', [
         {text: '确定', onPress: () => navigation.replace('Home')},

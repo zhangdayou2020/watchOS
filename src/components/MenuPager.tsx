@@ -1,27 +1,37 @@
-import React from 'react';
+import React, {useState} from 'react';
 import PagerView from 'react-native-pager-view';
-import {View, Text, StyleSheet} from 'react-native';
-import TaskListPager from './TaskListPager';
+import {View, StyleSheet} from 'react-native';
+import TaskMenuEntry from './TaskMenuEntry';
 import RewardItem from './RewardItem';
 import SettingItem from './SettingItem';
+import UnfinishedTaskDetail from './UnfinishedTaskDetail';
 
 const MenuPager: React.FC = () => {
+  const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
+
+  // 进入未完成任务详情页
+  if (showUnfinishedDetail) {
+    return (
+      <UnfinishedTaskDetail onBack={() => setShowUnfinishedDetail(false)} />
+    );
+  }
+
+  // 菜单页（上下滑动切换）
   return (
     <PagerView style={styles.pagerView} orientation="vertical" initialPage={0}>
       <View key="1" style={styles.page}>
-        <Text style={styles.title}>未完成任务</Text>
-        <TaskListPager type="unfinished" />
+        <TaskMenuEntry
+          type="unfinished"
+          onEnterDetail={() => setShowUnfinishedDetail(true)}
+        />
       </View>
       <View key="2" style={styles.page}>
-        <Text style={styles.title}>已完成任务</Text>
-        <TaskListPager type="finished" />
+        <TaskMenuEntry type="finished" />
       </View>
       <View key="3" style={styles.page}>
-        <Text style={styles.title}>奖励</Text>
         <RewardItem />
       </View>
       <View key="4" style={styles.page}>
-        <Text style={styles.title}>设置</Text>
         <SettingItem />
       </View>
     </PagerView>
@@ -29,21 +39,8 @@ const MenuPager: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  pagerView: {
-    flex: 1,
-  },
-  page: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 24,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#1976d2',
-  },
+  pagerView: {flex: 1},
+  page: {flex: 1, alignItems: 'center', justifyContent: 'center'},
 });
 
 export default MenuPager;

@@ -15,41 +15,39 @@ const UserHeader = () => {
         style={styles.avatar}
         resizeMode="cover"
       />
-      <View style={styles.info}>
-        <Text style={styles.name}>{user?.cname || '未登录'}</Text>
-        <Text style={styles.gp}>
-          {user ? `${user.grade || 0} GP` : '-- GP'}
-        </Text>
-      </View>
+      {/* <Text style={styles.name}>{user?.cname || '未登录'}</Text>
+      <Text style={styles.gp}>{user ? `${user.grade || 0} GP` : '-- GP'}</Text> */}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    justifyContent: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
     backgroundColor: '#fff',
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 32,
+    height: 32,
+    borderRadius: 18,
     backgroundColor: '#eee',
-  },
-  info: {
-    marginLeft: 12,
+    marginBottom: 3,
   },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#222',
+    marginBottom: 2,
+    textAlign: 'center',
   },
   gp: {
     fontSize: 14,
     color: '#4CAF50',
-    marginTop: 2,
+    marginBottom: 2,
+    textAlign: 'center',
   },
 });
 
