@@ -47,15 +47,14 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   };
 
   return (
-    <View
-      style={{flex: 1, backgroundColor: '#fff'}}
-      {...panResponder.panHandlers}>
+    <View style={styles.container} {...panResponder.panHandlers}>
+      <MaterialIcons name="home" size={40} color="#1976d2" />
       {/* 返回菜单按钮 */}
       <TouchableOpacity
         style={styles.backBtn}
         onPress={onBack}
         activeOpacity={0.7}>
-        <MaterialIcons name="arrow-back-ios" size={22} color="#1976d2" />
+        <MaterialIcons name="arrow-back-ios" size={20} color="#1976d2" />
         <Text style={styles.backText}>返回菜单</Text>
       </TouchableOpacity>
       {/* 上箭头 */}
@@ -65,7 +64,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
         disabled={currentIndex === 0}
         activeOpacity={0.7}>
         <MaterialIcons
-          name="keyboard-arrow-up"
+          name="expand-less"
           size={32}
           color={currentIndex === 0 ? '#ccc' : '#1976d2'}
         />
@@ -77,7 +76,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
         disabled={currentIndex === tasks.length - 1}
         activeOpacity={0.7}>
         <MaterialIcons
-          name="keyboard-arrow-down"
+          name="expand-more"
           size={32}
           color={currentIndex === tasks.length - 1 ? '#ccc' : '#1976d2'}
         />
@@ -109,6 +108,10 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   backBtn: {
     position: 'absolute',
     top: 18,
@@ -116,14 +119,14 @@ const styles = StyleSheet.create({
     zIndex: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.92)',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    shadowColor: '#000',
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 24,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    shadowColor: '#1976d2',
     shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   backText: {
     fontSize: 16,
@@ -134,28 +137,32 @@ const styles = StyleSheet.create({
   arrowBtn: {
     position: 'absolute',
     left: '50%',
-    marginLeft: -18,
-    backgroundColor: 'rgba(25, 118, 210, 0.08)',
-    borderRadius: 18,
-    width: 36,
-    height: 36,
+    marginLeft: -22,
+    backgroundColor: 'rgba(25, 118, 210, 0.13)',
+    borderRadius: 22,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
+    shadowColor: '#1976d2',
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
   },
   arrowUp: {
-    top: 60,
+    top: 38,
   },
   arrowDown: {
-    bottom: 60,
+    bottom: 38,
   },
   page: {
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
     borderRadius: 18,
-    marginHorizontal: 8,
-    marginVertical: 4,
+    marginHorizontal: 12,
+    marginVertical: 8,
     elevation: 2,
     flex: 1,
   },
@@ -166,13 +173,13 @@ const styles = StyleSheet.create({
     minHeight: 120,
   },
   title: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
     color: '#1976d2',
-    marginBottom: 8,
+    marginBottom: 10,
   },
   desc: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#666',
   },
 });

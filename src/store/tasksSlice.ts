@@ -12,8 +12,13 @@ export interface TasksState {
   finished: Task[];
 }
 
+// 这里写入 mock 数据
 const initialState: TasksState = {
-  unfinished: [],
+  unfinished: [
+    {id: '1', title: '朗读课文', desc: '朗读第5课课文'},
+    {id: '2', title: '背诵古诗', desc: '背诵《静夜思》'},
+    {id: '3', title: '做家务', desc: '整理房间'},
+  ],
   finished: [],
 };
 
