@@ -6,10 +6,10 @@ import {
   Dimensions,
   FlatList,
   TouchableOpacity,
-  PanResponder,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {GestureDetector, Gesture} from 'react-native-gesture-handler';
 import type {RootState} from '@/store';
 
 const {height} = Dimensions.get('window');
@@ -18,21 +18,6 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  // 手势优化：只在靠近屏幕左侧1/3区域时才触发左滑返回，避免误触
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gestureState) =>
-        gestureState.moveX < 120 &&
-        Math.abs(gestureState.dx) > Math.abs(gestureState.dy) &&
-        gestureState.dx < -10,
-      onPanResponderRelease: (_, gestureState) => {
-        if (gestureState.moveX < 120 && gestureState.dx < -30) {
-          onBack();
-        }
-      },
-    }),
-  ).current;
 
   const onMomentumScrollEnd = (e: any) => {
     const idx = Math.round(e.nativeEvent.contentOffset.y / height);
@@ -46,64 +31,76 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
     }
   };
 
+  // 👇 左滑手势：用于触发返回菜单
+  const backSwipe = Gesture.Pan().onEnd(e => {
+    if (
+      e.translationX < -30 &&
+      Math.abs(e.translationX) > Math.abs(e.translationY)
+    ) {
+      onBack();
+    }
+  });
+
   return (
-    <View style={styles.container} {...panResponder.panHandlers}>
-      <MaterialIcons name="home" size={40} color="#1976d2" />
-      {/* 返回菜单按钮 */}
-      <TouchableOpacity
-        style={styles.backBtn}
-        onPress={onBack}
-        activeOpacity={0.7}>
-        <MaterialIcons name="arrow-back-ios" size={20} color="#1976d2" />
-        <Text style={styles.backText}>返回菜单</Text>
-      </TouchableOpacity>
-      {/* 上箭头 */}
-      <TouchableOpacity
-        style={[styles.arrowBtn, styles.arrowUp]}
-        onPress={() => scrollToIndex(currentIndex - 1)}
-        disabled={currentIndex === 0}
-        activeOpacity={0.7}>
-        <MaterialIcons
-          name="expand-less"
-          size={32}
-          color={currentIndex === 0 ? '#ccc' : '#1976d2'}
-        />
-      </TouchableOpacity>
-      {/* 下箭头 */}
-      <TouchableOpacity
-        style={[styles.arrowBtn, styles.arrowDown]}
-        onPress={() => scrollToIndex(currentIndex + 1)}
-        disabled={currentIndex === tasks.length - 1}
-        activeOpacity={0.7}>
-        <MaterialIcons
-          name="expand-more"
-          size={32}
-          color={currentIndex === tasks.length - 1 ? '#ccc' : '#1976d2'}
-        />
-      </TouchableOpacity>
-      {/* 纵向分页任务详情 */}
-      <FlatList
-        ref={flatListRef}
-        data={tasks}
-        keyExtractor={item => item.id}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        onMomentumScrollEnd={onMomentumScrollEnd}
-        renderItem={({item}) => (
-          <View style={[styles.page, {height}]}>
-            <View style={styles.contentBox}>
-              <Text style={styles.title}>{item.title}</Text>
-              {item.desc && <Text style={styles.desc}>{item.desc}</Text>}
+    <GestureDetector gesture={backSwipe}>
+      <View style={styles.container}>
+        <MaterialIcons name="home" size={40} color="#1976d2" />
+        {/* 返回菜单按钮 */}
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={onBack}
+          activeOpacity={0.7}>
+          <MaterialIcons name="arrow-back-ios" size={20} color="#1976d2" />
+          <Text style={styles.backText}>返回菜单</Text>
+        </TouchableOpacity>
+        {/* 上箭头 */}
+        <TouchableOpacity
+          style={[styles.arrowBtn, styles.arrowUp]}
+          onPress={() => scrollToIndex(currentIndex - 1)}
+          disabled={currentIndex === 0}
+          activeOpacity={0.7}>
+          <MaterialIcons
+            name="expand-less"
+            size={32}
+            color={currentIndex === 0 ? '#ccc' : '#1976d2'}
+          />
+        </TouchableOpacity>
+        {/* 下箭头 */}
+        <TouchableOpacity
+          style={[styles.arrowBtn, styles.arrowDown]}
+          onPress={() => scrollToIndex(currentIndex + 1)}
+          disabled={currentIndex === tasks.length - 1}
+          activeOpacity={0.7}>
+          <MaterialIcons
+            name="expand-more"
+            size={32}
+            color={currentIndex === tasks.length - 1 ? '#ccc' : '#1976d2'}
+          />
+        </TouchableOpacity>
+        {/* 纵向分页任务详情 */}
+        <FlatList
+          ref={flatListRef}
+          data={tasks}
+          keyExtractor={item => item.id}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          onMomentumScrollEnd={onMomentumScrollEnd}
+          renderItem={({item}) => (
+            <View style={[styles.page, {height}]}>
+              <View style={styles.contentBox}>
+                <Text style={styles.title}>{item.title}</Text>
+                {item.desc && <Text style={styles.desc}>{item.desc}</Text>}
+              </View>
             </View>
-          </View>
-        )}
-        getItemLayout={(_, index) => ({
-          length: height,
-          offset: height * index,
-          index,
-        })}
-      />
-    </View>
+          )}
+          getItemLayout={(_, index) => ({
+            length: height,
+            offset: height * index,
+            index,
+          })}
+        />
+      </View>
+    </GestureDetector>
   );
 };
 
