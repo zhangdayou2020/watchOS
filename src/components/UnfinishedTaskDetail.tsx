@@ -1,15 +1,7 @@
-import React, {useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
+import React, {useRef, useState, useCallback} from 'react';
+import {View, Text, StyleSheet, Dimensions, FlatList} from 'react-native';
 import {useSelector} from 'react-redux';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {GestureDetector, Gesture} from 'react-native-gesture-handler';
+import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
 
 const {height} = Dimensions.get('window');
@@ -31,52 +23,19 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
     }
   };
 
-  // 👇 左滑手势：用于触发返回菜单
-  const backSwipe = Gesture.Pan().onEnd(e => {
-    if (
-      e.translationX < -30 &&
-      Math.abs(e.translationX) > Math.abs(e.translationY)
-    ) {
-      onBack();
-    }
-  });
-
   return (
-    <GestureDetector gesture={backSwipe}>
+    <WearOSGestureHandler
+      onBack={onBack}>
       <View style={styles.container}>
-        <MaterialIcons name="home" size={40} color="#1976d2" />
-        {/* 返回菜单按钮 */}
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={onBack}
-          activeOpacity={0.7}>
-          <MaterialIcons name="arrow-back-ios" size={20} color="#1976d2" />
-          <Text style={styles.backText}>返回菜单</Text>
-        </TouchableOpacity>
-        {/* 上箭头 */}
-        <TouchableOpacity
-          style={[styles.arrowBtn, styles.arrowUp]}
-          onPress={() => scrollToIndex(currentIndex - 1)}
-          disabled={currentIndex === 0}
-          activeOpacity={0.7}>
-          <MaterialIcons
-            name="expand-less"
-            size={32}
-            color={currentIndex === 0 ? '#ccc' : '#1976d2'}
-          />
-        </TouchableOpacity>
-        {/* 下箭头 */}
-        <TouchableOpacity
-          style={[styles.arrowBtn, styles.arrowDown]}
-          onPress={() => scrollToIndex(currentIndex + 1)}
-          disabled={currentIndex === tasks.length - 1}
-          activeOpacity={0.7}>
-          <MaterialIcons
-            name="expand-more"
-            size={32}
-            color={currentIndex === tasks.length - 1 ? '#ccc' : '#1976d2'}
-          />
-        </TouchableOpacity>
+        {/* 滑动指示器文本 */}
+        {tasks && tasks.length > 1 && (
+          <View style={styles.scrollIndicator}>
+            <Text style={styles.scrollIndicatorText}>
+              {currentIndex + 1} / {tasks.length}
+            </Text>
+          </View>
+        )}
+
         {/* 纵向分页任务详情 */}
         <FlatList
           ref={flatListRef}
@@ -85,11 +44,23 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           pagingEnabled
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
+          scrollEventThrottle={16}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>没有未完成的任务</Text>
+            </View>
+          }
           renderItem={({item}) => (
             <View style={[styles.page, {height}]}>
               <View style={styles.contentBox}>
-                <Text style={styles.title}>{item.title}</Text>
-                {item.desc && <Text style={styles.desc}>{item.desc}</Text>}
+                <Text style={styles.title} numberOfLines={3}>
+                  {item.title}
+                </Text>
+                {item.desc && (
+                  <Text style={styles.desc} numberOfLines={4}>
+                    {item.desc}
+                  </Text>
+                )}
               </View>
             </View>
           )}
@@ -100,84 +71,63 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           })}
         />
       </View>
-    </GestureDetector>
+    </WearOSGestureHandler>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f0f2f5', // 使用柔和的背景色
   },
-  backBtn: {
+  // 滑动指示器
+  scrollIndicator: {
     position: 'absolute',
-    top: 18,
-    left: 18,
-    zIndex: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 24,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    shadowColor: '#1976d2',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 3,
+    top: 8,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    zIndex: 16,
   },
-  backText: {
-    fontSize: 16,
-    color: '#1976d2',
+  scrollIndicatorText: {
+    color: '#fff',
+    fontSize: 13,
     fontWeight: 'bold',
-    marginLeft: 2,
-  },
-  arrowBtn: {
-    position: 'absolute',
-    left: '50%',
-    marginLeft: -22,
-    backgroundColor: 'rgba(25, 118, 210, 0.13)',
-    borderRadius: 22,
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-    shadowColor: '#1976d2',
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  arrowUp: {
-    top: 38,
-  },
-  arrowDown: {
-    bottom: 38,
   },
   page: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 18,
-    marginHorizontal: 12,
-    marginVertical: 8,
-    elevation: 2,
     flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 35, // 增加内边距，避免文字太靠近边缘
   },
   contentBox: {
-    alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
     minHeight: 120,
   },
   title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#1976d2',
-    marginBottom: 10,
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 12,
   },
   desc: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#666',
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  emptyContainer: {
+    flex: 1,
+    height: height,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#888',
   },
 });
 

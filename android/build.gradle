@@ -2,8 +2,8 @@ buildscript {
     ext {
         buildToolsVersion = "30.0.3"  // 更新为兼容的版本
         minSdkVersion = 24            // Wear OS 需要的最低 SDK
-        compileSdkVersion = 34        // 使用较新的 SDK 版本
-        targetSdkVersion = 34         // 使用较新的目标 SDK 版本
+        compileSdkVersion = 35        // 使用较新的 SDK 版本
+        targetSdkVersion = 35         // 使用较新的目标 SDK 版本
         ndkVersion = "27.1.12297006"
         kotlinVersion = "1.7.10"      // 更新为 Kotlin 最新版本
     }
