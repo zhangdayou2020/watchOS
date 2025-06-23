@@ -23,13 +23,13 @@ instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const url = config.url || '';
     const needToken = !noTokenApis.some(api => url.includes(api));
-    const token = store.getState().token.token;
+    const token = (store.getState() as any).user?.token;
     if (token && needToken) {
       config.headers = {
-        ...config.headers,
+        ...(config.headers || {}),
         Cookie: `token="${token}"`,
         Accept: '*/*',
-      };
+      } as any;
     }
     return config;
   },

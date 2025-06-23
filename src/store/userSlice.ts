@@ -11,6 +11,8 @@ export interface UserInfo {
   cardnumber: string;
   bday: string;
   sex: string;
+  totalgp?: string;
+  token: string;
 }
 
 const initialState: UserInfo | null = null;

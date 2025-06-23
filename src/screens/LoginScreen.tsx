@@ -52,16 +52,18 @@ const LoginScreen = () => {
   const handlePair = async () => {
     setLoading(true);
     try {
-      const userData = await loginWithPairCode(code);
-      dispatch(setUserInfo(userData));
-      // const tasks = await getTodayTaskByChild({});
-      // dispatch(setTasks(tasks));
-
-      saveUserToStorage(userData);
-      Alert.alert('配对成功', '正在进入主页', [
-        {text: '确定', onPress: () => navigation.replace('Home')},
-      ]);
-      console.log('配对成功，用户数据:', userData);
+      const res = await loginWithPairCode(code);
+      console.log('配对接口返回:', res);
+      if (res.status === 'SUCCESS') {
+        dispatch(setUserInfo(res.data));
+        saveUserToStorage(res.data);
+        Alert.alert('配对成功', '正在进入主页', [
+          {text: '确定', onPress: () => navigation.replace('Home')},
+        ]);
+        console.log('配对成功，用户数据:', res.data);
+      } else {
+        Alert.alert('配对失败', res.reason || '网络异常，请重试');
+      }
     } catch (e: any) {
       Alert.alert('配对失败', e.message || '网络异常，请重试');
     }
