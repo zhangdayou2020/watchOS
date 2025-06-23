@@ -1,5 +1,5 @@
 import React, {useRef, useState, useCallback} from 'react';
-import {View, Text, StyleSheet, Dimensions, FlatList} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity} from 'react-native';
 import {useSelector} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
@@ -23,6 +23,11 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
     }
   };
 
+  const firstTask = tasks && tasks.length > 0 ? tasks[0] : null;
+
+  const taskName = (firstTask as any)?.taskName || (firstTask as any)?.title || '无任务名';
+  const dynamicFontSize = taskName.length > 16 ? 15 : 18;
+
   return (
     <WearOSGestureHandler
       onBack={onBack}>
@@ -33,6 +38,28 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
             <Text style={styles.scrollIndicatorText}>
               {currentIndex + 1} / {tasks.length}
             </Text>
+          </View>
+        )}
+
+        {firstTask ? (
+          <View style={styles.contentBox}>
+            <Text
+              style={[styles.title, {fontSize: dynamicFontSize}]}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              {taskName}
+            </Text>
+            <View style={{height: 10}} />
+            <Text style={styles.category}>{(firstTask as any).taskCategory || '无分类'}</Text>
+            <Text style={styles.integral}>+{(firstTask as any).taskIntegral || 0} 积分</Text>
+            <Text style={styles.statusTodo}>
+              {((firstTask as any).complete === 'Y') ? '已完成' : '未完成'}
+            </Text>
+          </View>
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>没有未完成的任务</Text>
           </View>
         )}
 
@@ -102,16 +129,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 35, // 增加内边距，避免文字太靠近边缘
   },
   contentBox: {
-    justifyContent: 'center',
     flex: 1,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
     minHeight: 120,
+    paddingTop: 60, // 让内容整体下移，避开顶部指示器
+    paddingBottom: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#333',
+    fontWeight: 'bold',
+    color: '#222',
     textAlign: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
+    lineHeight: 22,
+    maxWidth: '90%',
+    alignSelf: 'center',
   },
   desc: {
     fontSize: 16,
@@ -128,6 +160,26 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 18,
     color: '#888',
+  },
+  category: {
+    fontSize: 16,
+    color: '#888',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  integral: {
+    fontSize: 16,
+    color: '#ff9800',
+    textAlign: 'center',
+    marginBottom: 4,
+    fontWeight: '500',
+  },
+  statusTodo: {
+    fontSize: 16,
+    color: '#1976d2',
+    textAlign: 'center',
+    marginTop: 2,
+    fontWeight: '500',
   },
 });
 

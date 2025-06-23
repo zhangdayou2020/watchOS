@@ -4,10 +4,43 @@ import {useSelector} from 'react-redux';
 import type {RootState} from '@/store';
 
 const {width} = Dimensions.get('window');
+const CARD_WIDTH = width * 0.85;
+
+interface ApiTask {
+  tid?: string;
+  taskName?: string;
+  taskCategory?: string;
+  taskIntegral?: string;
+  complete?: string;
+  title?: string;
+  desc?: string;
+  reward?: string | number;
+  [key: string]: any;
+}
 
 interface TaskListPagerProps {
   type: 'unfinished' | 'finished';
 }
+
+const TaskCard: React.FC<{ task: ApiTask }> = ({ task }) => (
+  <View style={[
+    styles.card,
+    task.complete === 'Y' ? styles.cardDone : styles.cardTodo
+  ]}>
+    <Text style={styles.title}>{task.taskName || task.title || '无任务名'}</Text>
+    <Text style={styles.category}>{task.taskCategory || task.desc || '无分类'}</Text>
+    <View style={styles.row}>
+      <View style={[
+        styles.statusDot,
+        task.complete === 'Y' ? styles.dotDone : styles.dotTodo
+      ]} />
+      <Text style={styles.statusText}>
+        {task.complete === 'Y' ? '已完成' : '未完成'}
+      </Text>
+      <Text style={styles.integral}>+{task.taskIntegral || Number(task.reward) || 0} 积分</Text>
+    </View>
+  </View>
+);
 
 const TaskListPager: React.FC<TaskListPagerProps> = ({type}) => {
   const tasks =
@@ -15,52 +48,81 @@ const TaskListPager: React.FC<TaskListPagerProps> = ({type}) => {
       type === 'unfinished' ? state.tasks.unfinished : state.tasks.finished,
     ) || [];
 
-  // 汇总页 + 任务详情页
-  const data = [
-    {
-      id: 'summary',
-      title: type === 'unfinished' ? '未完成任务' : '已完成任务',
-      color: '#eee',
-    },
-    ...tasks.map((task, idx) => ({
-      ...task,
-      color: idx % 2 === 0 ? '#f99' : '#9f9', // 仅示例用不同颜色
-    })),
-  ];
-
   return (
     <FlatList
-      data={data}
-      keyExtractor={item => item.id}
-      horizontal
-      pagingEnabled
-      showsHorizontalScrollIndicator={false}
-      renderItem={({item}) => (
-        <View style={[styles.page, {backgroundColor: item.color, width}]}>
-          <Text style={styles.title}>{item.title}</Text>
-          {item.desc && <Text style={styles.desc}>{item.desc}</Text>}
-        </View>
-      )}
+      data={tasks}
+      keyExtractor={item => (item as any).tid || (item as any).id}
+      contentContainerStyle={styles.listContent}
+      renderItem={({item}) => <TaskCard task={item} />}
+      showsVerticalScrollIndicator={false}
     />
   );
 };
 
 const styles = StyleSheet.create({
-  page: {
-    flex: 1,
+  listContent: {
     alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
+    paddingVertical: 16,
+  },
+  card: {
+    width: CARD_WIDTH,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    marginVertical: 10,
+    paddingVertical: 18,
+    paddingHorizontal: 18,
+    alignItems: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+  },
+  cardDone: {
+    backgroundColor: '#e8f5e9',
+  },
+  cardTodo: {
+    backgroundColor: '#e3f2fd',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: '#1976d2',
-    marginBottom: 8,
+    marginBottom: 6,
+    textAlign: 'center',
   },
-  desc: {
-    fontSize: 16,
-    color: '#666',
+  category: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  statusDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    marginRight: 6,
+  },
+  dotDone: {
+    backgroundColor: '#4caf50',
+  },
+  dotTodo: {
+    backgroundColor: '#f44336',
+  },
+  statusText: {
+    fontSize: 15,
+    marginRight: 12,
+    color: '#333',
+  },
+  integral: {
+    fontSize: 15,
+    color: '#ff9800',
+    fontWeight: 'bold',
   },
 });
 

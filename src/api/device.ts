@@ -10,6 +10,8 @@ export function testDeviceApi(params: TestDeviceApiParams) {
   Object.entries(params).forEach(([key, value]) => {
     formData.append(key, value);
   });
+  console.log('配对请求参数:', params);
+  console.log('配对请求 headers:', {headers: {'Content-Type': 'multipart/form-data'}});
   return request
     .post('/pm/php/data.php', formData, {
       headers: {'Content-Type': 'multipart/form-data'},

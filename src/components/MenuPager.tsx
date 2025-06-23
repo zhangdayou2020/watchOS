@@ -5,14 +5,23 @@ import TaskMenuEntry from './TaskMenuEntry';
 import RewardItem from './RewardItem';
 import SettingItem from './SettingItem';
 import UnfinishedTaskDetail from './UnfinishedTaskDetail';
+import FinishedTaskDetail from './FinishedTaskDetail';
 
 const MenuPager: React.FC = () => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
+  const [showFinishedDetail, setShowFinishedDetail] = useState(false);
 
   // 进入未完成任务详情页
   if (showUnfinishedDetail) {
     return (
       <UnfinishedTaskDetail onBack={() => setShowUnfinishedDetail(false)} />
+    );
+  }
+
+  // 进入已完成任务详情页
+  if (showFinishedDetail) {
+    return (
+      <FinishedTaskDetail onBack={() => setShowFinishedDetail(false)} />
     );
   }
 
@@ -26,7 +35,7 @@ const MenuPager: React.FC = () => {
         />
       </View>
       <View key="2" style={styles.page}>
-        <TaskMenuEntry type="finished" />
+        <TaskMenuEntry type="finished" onEnterDetail={() => setShowFinishedDetail(true)} />
       </View>
       <View key="3" style={styles.page}>
         <RewardItem />
