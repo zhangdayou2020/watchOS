@@ -11,6 +11,7 @@ import UserHeader from './UserHeader';
 const MenuPager: React.FC = () => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
   const [showFinishedDetail, setShowFinishedDetail] = useState(false);
+  const [showRewardDetail, setShowRewardDetail] = useState(false);
 
   // 进入未完成任务详情页
   if (showUnfinishedDetail) {
@@ -24,6 +25,12 @@ const MenuPager: React.FC = () => {
     return (
       <FinishedTaskDetail onBack={() => setShowFinishedDetail(false)} />
     );
+  }
+
+  // 进入奖励详情页
+  if (showRewardDetail) {
+    const GiftDetail = require('./GiftDetail').default;
+    return <GiftDetail onBack={() => setShowRewardDetail(false)} />;
   }
 
   // 菜单页（上下滑动切换）
@@ -42,7 +49,7 @@ const MenuPager: React.FC = () => {
       </View>
       <View key="3" style={styles.page}>
         <UserHeader />
-        <RewardItem />
+        <RewardItem onEnterDetail={() => setShowRewardDetail(true)} />
       </View>
       <View key="4" style={styles.page}>
         <UserHeader />

@@ -4,19 +4,18 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import GiftDetail from './GiftDetail';
 
-const RewardItem: React.FC = () => {
-  const [showDetail, setShowDetail] = React.useState(false);
+interface RewardItemProps {
+  onEnterDetail?: () => void;
+}
+
+const RewardItem: React.FC<RewardItemProps> = ({ onEnterDetail }) => {
   const count = useSelector((state: RootState) => state.gifts.length);
   const disabled = count === 0;
-
-  if (showDetail) {
-    return <GiftDetail onBack={() => setShowDetail(false)} />;
-  }
 
   return (
     <TouchableOpacity
       style={[styles.entry, disabled && styles.disabled]}
-      onPress={disabled ? undefined : () => setShowDetail(true)}
+      onPress={disabled ? undefined : onEnterDetail}
       activeOpacity={disabled ? 1 : 0.7}
       disabled={disabled}
     >
