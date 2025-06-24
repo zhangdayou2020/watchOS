@@ -1,67 +1,31 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import GiftDetail from './GiftDetail';
 
-// 示例静态奖励图片
-const defaultRewardImg = require('@/assets/images/reward.png');
+const RewardItem: React.FC = () => {
+  const [showDetail, setShowDetail] = React.useState(false);
 
-interface RewardItemProps {
-  title?: string;
-  desc?: string;
-  img?: string;
-  gp?: number;
-}
+  if (showDetail) {
+    return <GiftDetail onBack={() => setShowDetail(false)} />;
+  }
 
-const RewardItem: React.FC<RewardItemProps> = ({
-  title = '奖励名称',
-  desc = '奖励描述',
-  img,
-  gp = 0,
-}) => {
   return (
-    <View style={styles.container}>
-      <Image
-        source={img ? {uri: img} : defaultRewardImg}
-        style={styles.img}
-        resizeMode="cover"
-      />
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.gp}>{gp} GP</Text>
-      <Text style={styles.desc}>{desc}</Text>
-    </View>
+    <TouchableOpacity style={styles.entry} onPress={() => setShowDetail(true)} activeOpacity={0.7}>
+      <Text style={styles.title}>奖励</Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  entry: {
+    padding: 24,
     alignItems: 'center',
-    padding: 18,
-    backgroundColor: '#f8fafd',
-    borderRadius: 12,
-    margin: 16,
-    elevation: 1,
-  },
-  img: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    marginBottom: 10,
-    backgroundColor: '#eee',
+    justifyContent: 'center',
   },
   title: {
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1976d2',
-    marginBottom: 4,
-  },
-  gp: {
-    fontSize: 15,
-    color: '#4CAF50',
-    marginBottom: 4,
-  },
-  desc: {
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
   },
 });
 

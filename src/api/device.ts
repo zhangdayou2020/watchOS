@@ -10,8 +10,7 @@ export function testDeviceApi(params: TestDeviceApiParams) {
   Object.entries(params).forEach(([key, value]) => {
     formData.append(key, value);
   });
-  console.log('配对请求参数:', params);
-  console.log('配对请求 headers:', {headers: {'Content-Type': 'multipart/form-data'}});
+ 
   return request
     .post('/pm/php/data.php', formData, {
       headers: {'Content-Type': 'multipart/form-data'},
@@ -21,7 +20,7 @@ export function testDeviceApi(params: TestDeviceApiParams) {
       return res;
     })
     .catch(err => {
-      console.log('api error:', err);
+     
       throw err;
     });
 }
@@ -35,11 +34,11 @@ export function testWatchApi(params: {action: string; pm: string}) {
       headers: {'Content-Type': 'multipart/form-data'},
     })
     .then(res => {
-      console.log('testWatchAPI success:', res);
+  
       return res;
     })
     .catch(err => {
-      console.log('testWatchAPI error:', err);
+      
       throw err;
     });
 }

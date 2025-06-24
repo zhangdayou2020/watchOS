@@ -5,11 +5,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setTasks } from '@/store/tasksSlice';
 import { getTodayTaskByChild } from '@/api/todayTask';
 import type { RootState } from '@/store';
+import { getAwardListByCid } from '@/api/gift';
+import { setAwards } from '@/store/giftSlice';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.user);
   const cid = user?.cid;
+  const awards = useSelector((state: RootState) => state.gifts);
 
   useEffect(() => {
     console.log('HomeScreen useEffect cid:', cid);
@@ -28,6 +31,16 @@ const HomeScreen = () => {
       .catch(err => {
         // 可以加Toast或Alert提示
         console.log('获取任务失败', err);
+      });
+  }, [cid]);
+
+  useEffect(() => {
+    if (!cid) return;
+    getAwardListByCid({ action: 'getAwardListByCid', cid })
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          dispatch(setAwards(res.data));
+        }
       });
   }, [cid]);
 
