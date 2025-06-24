@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, FlatList } from 'react-native';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import WearOSGestureHandler from './WearOSGestureHandler';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 const { height } = Dimensions.get('window');
 
@@ -82,69 +83,70 @@ const styles = StyleSheet.create({
   },
   scrollIndicator: {
     position: 'absolute',
-    top: 8,
+    top: getWidthPercent(0.02),
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderRadius: getWidthPercent(0.03),
+    paddingHorizontal: getWidthPercent(0.03),
+    paddingVertical: getWidthPercent(0.012),
     zIndex: 16,
   },
   scrollIndicatorText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: getFontSize(0.04),
     fontWeight: 'bold',
   },
   page: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 35,
+    paddingHorizontal: getWidthPercent(0.09),
   },
   contentBox: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    minHeight: 120,
-    paddingTop: 60,
-    paddingBottom: 16,
+    minHeight: getWidthPercent(0.3),
+    paddingTop: getWidthPercent(0.15),
+    paddingBottom: getWidthPercent(0.04),
   },
   title: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    marginBottom: 14,
-    lineHeight: 22,
+    marginBottom: getWidthPercent(0.035),
+    lineHeight: getFontSize(0.06),
     maxWidth: '90%',
     alignSelf: 'center',
+    fontSize: getFontSize(0.055),
   },
   category: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#888',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.01),
   },
   integral: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.01),
     fontWeight: '500',
   },
   statusDone: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#4caf50',
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: getWidthPercent(0.005),
     fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
-    height: height,
+    height: getWidthPercent(1),
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: getFontSize(0.06),
     color: '#888',
   },
 });

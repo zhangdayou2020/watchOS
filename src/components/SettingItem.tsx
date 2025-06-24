@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 interface TaskItemProps {
   title?: string;
@@ -25,31 +26,31 @@ const TaskItem: React.FC<TaskItemProps> = ({title, desc, status, reward}) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 14,
-    borderRadius: 10,
+    padding: getWidthPercent(0.04),
+    borderRadius: getWidthPercent(0.025),
     backgroundColor: '#f8fafd',
-    marginVertical: 8,
-    marginHorizontal: 12,
+    marginVertical: getWidthPercent(0.02),
+    marginHorizontal: getWidthPercent(0.03),
     elevation: 1,
   },
   title: {
-    fontSize: 16,
+    fontSize: getFontSize(0.05),
     fontWeight: 'bold',
     color: '#1976d2',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.01),
   },
   finished: {
-    fontSize: 13,
+    fontSize: getFontSize(0.04),
     color: '#4CAF50',
     fontWeight: 'normal',
   },
   desc: {
-    fontSize: 14,
+    fontSize: getFontSize(0.045),
     color: '#444',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.01),
   },
   reward: {
-    fontSize: 13,
+    fontSize: getFontSize(0.04),
     color: '#ff9800',
   },
 });

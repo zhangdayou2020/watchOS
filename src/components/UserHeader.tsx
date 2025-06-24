@@ -2,6 +2,7 @@ import React from 'react';
 import {View, Text, Image, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import type {RootState} from '@/store';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 const defaultAvatar = require('@/assets/images/avatar.png');
 
@@ -25,28 +26,28 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 10,
-    paddingBottom: 4,
+    paddingTop: getWidthPercent(0.025),
+    paddingBottom: getWidthPercent(0.01),
     backgroundColor: '#fff',
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: getWidthPercent(0.18),
+    height: getWidthPercent(0.18),
+    borderRadius: getWidthPercent(0.09),
     backgroundColor: '#eee',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.02),
   },
   name: {
-    fontSize: 15,
+    fontSize: getFontSize(0.055),
     fontWeight: 'bold',
     color: '#222',
-    marginBottom: 1,
+    marginBottom: getWidthPercent(0.01),
     textAlign: 'center',
   },
   gp: {
-    fontSize: 12,
+    fontSize: getFontSize(0.04),
     color: '#4CAF50',
-    marginBottom: 1,
+    marginBottom: getWidthPercent(0.01),
     textAlign: 'center',
     fontWeight: 'bold',
   },

@@ -6,6 +6,7 @@ import {useDispatch} from 'react-redux';
 import {useLoginWithPairCode} from '@/hooks/useLoginWithPairCode';
 import {setUserInfo} from '@/store/userSlice';
 import {saveUserToStorage} from '@/utils/storage';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 type RootStackParamList = {
   Home: undefined;

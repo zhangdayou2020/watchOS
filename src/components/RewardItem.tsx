@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import GiftDetail from './GiftDetail';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 interface RewardItemProps {
   onEnterDetail?: () => void;
@@ -26,12 +27,12 @@ const RewardItem: React.FC<RewardItemProps> = ({ onEnterDetail }) => {
 
 const styles = StyleSheet.create({
   entry: {
-    padding: 24,
+    padding: getWidthPercent(0.07),
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: 20,
+    fontSize: getFontSize(0.065),
     fontWeight: 'bold',
     color: '#1976d2',
   },

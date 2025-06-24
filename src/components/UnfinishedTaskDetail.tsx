@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity} from 're
 import {useSelector} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 const {height} = Dimensions.get('window');
 
@@ -23,11 +24,6 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
     }
   };
 
-  const firstTask = tasks && tasks.length > 0 ? tasks[0] : null;
-
-  const taskName = (firstTask as any)?.taskName || (firstTask as any)?.title || '无任务名';
-  const dynamicFontSize = taskName.length > 16 ? 15 : 18;
-
   return (
     <WearOSGestureHandler
       onBack={onBack}>
@@ -41,29 +37,6 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           </View>
         )}
 
-        {firstTask ? (
-          <View style={styles.contentBox}>
-            <Text
-              style={[styles.title, {fontSize: dynamicFontSize}]}
-              numberOfLines={2}
-              ellipsizeMode="tail"
-            >
-              {taskName}
-            </Text>
-            <View style={{height: 10}} />
-            <Text style={styles.category}>{(firstTask as any).taskCategory || '无分类'}</Text>
-            <Text style={styles.integral}>+{(firstTask as any).taskIntegral || 0} 积分</Text>
-            <Text style={styles.statusTodo}>
-              {((firstTask as any).complete === 'Y') ? '已完成' : '未完成'}
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>没有未完成的任务</Text>
-          </View>
-        )}
-
-        {/* 纵向分页任务详情 */}
         <FlatList
           ref={flatListRef}
           data={tasks}
@@ -78,16 +51,15 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
             </View>
           }
           renderItem={({item}) => (
-            <View style={[styles.page, {height}]}>
+            <View style={[styles.page, {height}]}> 
               <View style={styles.contentBox}>
-                <Text style={styles.title} numberOfLines={3}>
-                  {item.title}
+                <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+                  {item.taskName || item.title || '无任务名'}
                 </Text>
-                {item.desc && (
-                  <Text style={styles.desc} numberOfLines={4}>
-                    {item.desc}
-                  </Text>
-                )}
+                <View style={{height: getWidthPercent(0.02)}} />
+                <Text style={styles.category}>{item.taskCategory || item.desc || '无分类'}</Text>
+                <Text style={styles.integral}>+{item.taskIntegral || item.reward || 0} 积分</Text>
+                <Text style={styles.statusTodo}>{item.complete === 'Y' ? '已完成' : '未完成'}</Text>
               </View>
             </View>
           )}
@@ -110,75 +82,76 @@ const styles = StyleSheet.create({
   // 滑动指示器
   scrollIndicator: {
     position: 'absolute',
-    top: 8,
+    top: getWidthPercent(0.02),
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderRadius: getWidthPercent(0.03),
+    paddingHorizontal: getWidthPercent(0.03),
+    paddingVertical: getWidthPercent(0.012),
     zIndex: 16,
   },
   scrollIndicatorText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: getFontSize(0.04),
     fontWeight: 'bold',
   },
   page: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 35, // 增加内边距，避免文字太靠近边缘
+    paddingHorizontal: getWidthPercent(0.09),
   },
   contentBox: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    minHeight: 120,
-    paddingTop: 60, // 让内容整体下移，避开顶部指示器
-    paddingBottom: 16,
+    minHeight: getWidthPercent(0.3),
+    paddingTop: getWidthPercent(0.15),
+    paddingBottom: getWidthPercent(0.04),
   },
   title: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    marginBottom: 14,
-    lineHeight: 22,
+    marginBottom: getWidthPercent(0.035),
+    lineHeight: getFontSize(0.06),
     maxWidth: '90%',
     alignSelf: 'center',
+    fontSize: getFontSize(0.055),
   },
   desc: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#666',
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: getFontSize(0.06),
   },
   emptyContainer: {
     flex: 1,
-    height: height,
+    height: getWidthPercent(1),
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: getFontSize(0.06),
     color: '#888',
   },
   category: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#888',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.01),
   },
   integral: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: 4,
+    marginBottom: getWidthPercent(0.01),
     fontWeight: '500',
   },
   statusTodo: {
-    fontSize: 16,
+    fontSize: getFontSize(0.045),
     color: '#1976d2',
     textAlign: 'center',
-    marginTop: 2,
+    marginTop: getWidthPercent(0.005),
     fontWeight: '500',
   },
 });

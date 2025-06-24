@@ -7,6 +7,7 @@ import SettingItem from './SettingItem';
 import UnfinishedTaskDetail from './UnfinishedTaskDetail';
 import FinishedTaskDetail from './FinishedTaskDetail';
 import UserHeader from './UserHeader';
+import { getWidthPercent } from '@/utils/size';
 
 const MenuPager: React.FC = () => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
@@ -65,8 +66,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingTop: 24,
-    paddingBottom: 12,
+    paddingTop: getWidthPercent(0.07),
+    paddingBottom: getWidthPercent(0.03),
   },
 });
 

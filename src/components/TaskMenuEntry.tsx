@@ -2,6 +2,7 @@ import React from 'react';
 import {TouchableOpacity, Text, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 import type {RootState} from '@/store';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 interface Props {
   type: 'unfinished' | 'finished';
@@ -30,8 +31,8 @@ const TaskMenuEntry: React.FC<Props> = ({type, onEnterDetail}) => {
 };
 
 const styles = StyleSheet.create({
-  entry: {padding: 24},
-  title: {fontSize: 20, fontWeight: 'bold', color: '#1976d2'},
+  entry: {padding: getWidthPercent(0.07)},
+  title: {fontSize: getFontSize(0.065), fontWeight: 'bold', color: '#1976d2'},
   disabled: {opacity: 0.4},
   disabledText: {color: '#aaa'},
 });

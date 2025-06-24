@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, FlatList, Image } from 'react-nativ
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import WearOSGestureHandler from './WearOSGestureHandler';
+import { getWidthPercent, getFontSize } from '@/utils/size';
 
 const { height } = Dimensions.get('window');
 
@@ -76,7 +77,7 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
-const CARD_SIZE = 150;
+const CARD_SIZE = getWidthPercent(0.45);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -108,58 +109,58 @@ const styles = StyleSheet.create({
     width: CARD_SIZE,
     height: CARD_SIZE,
     backgroundColor: '#fff',
-    borderRadius: 28,
+    borderRadius: getWidthPercent(0.08),
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowRadius: getWidthPercent(0.025),
     elevation: 3,
-    padding: 10,
+    padding: getWidthPercent(0.03),
   },
   cardTitle: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    fontSize: 16,
-    marginBottom: 8,
-    lineHeight: 22,
+    fontSize: getFontSize(0.055),
+    marginBottom: getWidthPercent(0.02),
+    lineHeight: getFontSize(0.07),
     maxWidth: '90%',
   },
   cardIntegral: {
-    fontSize: 14,
+    fontSize: getFontSize(0.04),
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: 8,
+    marginBottom: getWidthPercent(0.02),
     fontWeight: 'bold',
   },
   cardImgWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
+    width: getWidthPercent(0.13),
+    height: getWidthPercent(0.13),
+    borderRadius: getWidthPercent(0.035),
     backgroundColor: '#f8fafd',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginTop: 4,
+    marginTop: getWidthPercent(0.01),
   },
   cardImg: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: getWidthPercent(0.11),
+    height: getWidthPercent(0.11),
+    borderRadius: getWidthPercent(0.02),
     backgroundColor: '#f8fafd',
   },
   placeholderBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 8,
+    width: getWidthPercent(0.11),
+    height: getWidthPercent(0.11),
+    borderRadius: getWidthPercent(0.02),
     backgroundColor: '#f0f2f5',
     alignItems: 'center',
     justifyContent: 'center',
   },
   placeholderIcon: {
-    fontSize: 22,
+    fontSize: getFontSize(0.07),
     color: '#c5cbe3',
   },
   emptyContainer: {

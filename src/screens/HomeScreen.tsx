@@ -7,6 +7,7 @@ import { getTodayTaskByChild } from '@/api/todayTask';
 import type { RootState } from '@/store';
 import { getAwardListByCid } from '@/api/gift';
 import { setAwards } from '@/store/giftSlice';
+import { getWidthPercent } from '@/utils/size';
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -55,6 +56,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+    paddingHorizontal: getWidthPercent(0.03),
+    paddingTop: getWidthPercent(0.03),
   },
 });
 
