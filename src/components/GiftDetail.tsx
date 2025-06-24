@@ -42,19 +42,26 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           }
           renderItem={({item}) => (
             <View style={[styles.page, {height}]}> 
-              <View style={styles.contentBox}>
-                <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+              <View style={styles.squareCard}>
+                <Text style={styles.cardTitle} numberOfLines={2} ellipsizeMode="tail">
                   {item.aname || '无奖励名'}
                 </Text>
-                <View style={{ height: 10 }} />
-                <Text style={styles.integral}>+{item.integral} 积分</Text>
+                <Text style={styles.cardIntegral}>+{item.integral} 积分</Text>
                 {item.img ? (
-                  <Image
-                    source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
-                    style={styles.giftImg}
-                    resizeMode="contain"
-                  />
-                ) : null}
+                  <View style={styles.cardImgWrapper}>
+                    <Image
+                      source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
+                      style={styles.cardImg}
+                      resizeMode="contain"
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.cardImgWrapper}>
+                    <View style={styles.placeholderBox}>
+                      <Text style={styles.placeholderIcon}>🎁</Text>
+                    </View>
+                  </View>
+                )}
               </View>
             </View>
           )}
@@ -69,6 +76,7 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
+const CARD_SIZE = 150;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -92,39 +100,67 @@ const styles = StyleSheet.create({
   page: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 35,
-  },
-  contentBox: {
-    flex: 1,
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    minHeight: 120,
-    paddingTop: 60,
-    paddingBottom: 16,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
-  title: {
+  squareCard: {
+    width: CARD_SIZE,
+    height: CARD_SIZE,
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+    padding: 10,
+  },
+  cardTitle: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    marginBottom: 14,
+    fontSize: 16,
+    marginBottom: 8,
     lineHeight: 22,
     maxWidth: '90%',
-    alignSelf: 'center',
-    fontSize: 20,
   },
-  integral: {
-    fontSize: 16,
+  cardIntegral: {
+    fontSize: 14,
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: 12,
-    fontWeight: '500',
+    marginBottom: 8,
+    fontWeight: 'bold',
   },
-  giftImg: {
-    width: 80,
-    height: 80,
-    marginTop: 10,
-    borderRadius: 16,
-    backgroundColor: '#fff',
+  cardImgWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    backgroundColor: '#f8fafd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginTop: 4,
+  },
+  cardImg: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#f8fafd',
+  },
+  placeholderBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: '#f0f2f5',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  placeholderIcon: {
+    fontSize: 22,
+    color: '#c5cbe3',
   },
   emptyContainer: {
     flex: 1,

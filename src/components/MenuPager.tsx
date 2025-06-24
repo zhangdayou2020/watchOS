@@ -6,6 +6,7 @@ import RewardItem from './RewardItem';
 import SettingItem from './SettingItem';
 import UnfinishedTaskDetail from './UnfinishedTaskDetail';
 import FinishedTaskDetail from './FinishedTaskDetail';
+import UserHeader from './UserHeader';
 
 const MenuPager: React.FC = () => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
@@ -29,18 +30,22 @@ const MenuPager: React.FC = () => {
   return (
     <PagerView style={styles.pagerView} orientation="vertical" initialPage={0}>
       <View key="1" style={styles.page}>
+        <UserHeader />
         <TaskMenuEntry
           type="unfinished"
           onEnterDetail={() => setShowUnfinishedDetail(true)}
         />
       </View>
       <View key="2" style={styles.page}>
+        <UserHeader />
         <TaskMenuEntry type="finished" onEnterDetail={() => setShowFinishedDetail(true)} />
       </View>
       <View key="3" style={styles.page}>
+        <UserHeader />
         <RewardItem />
       </View>
       <View key="4" style={styles.page}>
+        <UserHeader />
         <SettingItem />
       </View>
     </PagerView>
@@ -49,7 +54,13 @@ const MenuPager: React.FC = () => {
 
 const styles = StyleSheet.create({
   pagerView: {flex: 1},
-  page: {flex: 1, alignItems: 'center', justifyContent: 'center'},
+  page: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 24,
+    paddingBottom: 12,
+  },
 });
 
 export default MenuPager;
