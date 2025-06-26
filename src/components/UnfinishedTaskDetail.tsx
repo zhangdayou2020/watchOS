@@ -68,6 +68,24 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
             index,
           })}
         />
+
+        <Text style={{
+          position: 'absolute',
+          bottom: 10,
+          left: 0,
+          right: 0,
+          textAlign: 'center',
+          fontSize: 13,
+          color: 'red',
+          zIndex: 100,
+          backgroundColor: 'rgba(255,255,255,0.7)',
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: 8,
+          overflow: 'hidden',
+        }}>
+          width: {width}, height: {height}, safeSize: {safeSize}
+        </Text>
       </View>
     </WearOSGestureHandler>
   );

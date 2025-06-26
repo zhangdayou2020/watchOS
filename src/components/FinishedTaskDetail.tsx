@@ -29,6 +29,10 @@ const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   return (
     <WearOSGestureHandler onBack={onBack}>
       <View style={styles.container}>
+        {/* 调试信息 */}
+        <Text style={{ position: 'absolute', top: 0, left: 0, fontSize: 12, color: 'red', zIndex: 100 }}>
+          width: {width}, height: {height}, safeSize: {safeSize}
+        </Text>
         {/* 滑动指示器文本 */}
         {tasks && tasks.length > 1 && (
           <View style={styles.scrollIndicator}>
