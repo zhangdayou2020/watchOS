@@ -1,9 +1,7 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Dimensions} from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
-import GiftDetail from './GiftDetail';
-import { getWidthPercent, getFontSize } from '@/utils/size';
 
 interface RewardItemProps {
   onEnterDetail?: () => void;
@@ -17,29 +15,23 @@ const RewardItem: React.FC<RewardItemProps> = ({ onEnterDetail }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.entry, disabled && styles.disabled]}
+      style={{
+        padding: safeSize * 0.07,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: disabled ? 0.4 : 1,
+      }}
       onPress={disabled ? undefined : onEnterDetail}
       activeOpacity={disabled ? 1 : 0.7}
       disabled={disabled}
     >
-      <Text style={[styles.title, disabled && styles.disabledText]}>奖励（{count}）</Text>
+      <Text style={{
+        fontSize: safeSize * 0.065,
+        fontWeight: 'bold',
+        color: disabled ? '#aaa' : '#1976d2',
+      }}>奖励（{count}）</Text>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  entry: {
-    padding: safeSize * 0.07,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  title: {
-    fontSize: safeSize * 0.065,
-    fontWeight: 'bold',
-    color: '#1976d2',
-  },
-  disabled: {opacity: 0.4},
-  disabledText: {color: '#aaa'},
-});
 
 export default RewardItem;

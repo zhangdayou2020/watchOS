@@ -6,7 +6,6 @@ import WearOSGestureHandler from './WearOSGestureHandler';
 
 const { width, height } = Dimensions.get('window');
 const safeSize = Math.min(width, height);
-const CARD_SIZE = safeSize * 0.85;
 const ITEM_HEIGHT = safeSize - safeSize * 0.12;
 
 const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -81,12 +80,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
-  frostedGlass: {
-    flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.65)',
-    borderRadius: getWidthPercent(0.06),
-    margin: getWidthPercent(0.01),
   },
   scrollIndicator: {
     position: 'absolute',
