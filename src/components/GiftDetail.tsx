@@ -5,8 +5,9 @@ import type { RootState } from '@/store';
 import WearOSGestureHandler from './WearOSGestureHandler';
 
 const { width, height } = Dimensions.get('window');
-const safeSize = Math.min(width, height);
-const ITEM_HEIGHT = safeSize - safeSize * 0.12;
+const isRound = Math.abs(width - height) < 10; // 近似判断为圆盘
+const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
+const ITEM_HEIGHT = isRound ? safeSize - safeSize * 0.12 : height * 0.88;
 
 const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const gifts = useSelector((state: RootState) => state.gifts);
@@ -52,14 +53,14 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                 <View style={styles.cardImgWrapper}>
                   <Image
                     source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
-                    style={styles.cardImg}
+                    style={[styles.cardImg, { width: isRound ? safeSize * 0.18 : width * 0.22, height: isRound ? safeSize * 0.18 : width * 0.22, borderRadius: isRound ? safeSize * 0.04 : width * 0.04 }]}
                     resizeMode="contain"
                   />
                 </View>
               ) : (
                 <View style={styles.cardImgWrapper}>
-                  <View style={{ width: safeSize * 0.18, height: safeSize * 0.18, borderRadius: safeSize * 0.04, backgroundColor: '#f0f2f5', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: safeSize * 0.11, color: '#c5cbe3' }}>🎁</Text>
+                  <View style={{ width: isRound ? safeSize * 0.18 : width * 0.22, height: isRound ? safeSize * 0.18 : width * 0.22, borderRadius: isRound ? safeSize * 0.04 : width * 0.04, backgroundColor: '#f0f2f5', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: isRound ? safeSize * 0.11 : width * 0.13, color: '#c5cbe3' }}>🎁</Text>
                   </View>
                 </View>
               )}
@@ -86,7 +87,7 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           borderRadius: 8,
           overflow: 'hidden',
         }}>
-          width: {width}, height: {height}, safeSize: {safeSize}
+          width: {width}, height: {height}, safeSize: {safeSize} | {isRound ? '圆盘' : '方盘'}
         </Text>
       </View>
     </WearOSGestureHandler>
@@ -100,17 +101,17 @@ const styles = StyleSheet.create({
   },
   scrollIndicator: {
     position: 'absolute',
-    top: safeSize * 0.02,
+    top: isRound ? safeSize * 0.02 : height * 0.02,
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: safeSize * 0.03,
-    paddingHorizontal: safeSize * 0.03,
-    paddingVertical: safeSize * 0.012,
+    borderRadius: isRound ? safeSize * 0.03 : width * 0.03,
+    paddingHorizontal: isRound ? safeSize * 0.03 : width * 0.03,
+    paddingVertical: isRound ? safeSize * 0.012 : height * 0.012,
     zIndex: 16,
   },
   scrollIndicatorText: {
     color: '#fff',
-    fontSize: 13,
+    fontSize: isRound ? safeSize * 0.04 : width * 0.045,
     fontWeight: 'bold',
   },
   page: {
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f2f5',
-    padding: safeSize * 0.06,
+    padding: isRound ? safeSize * 0.06 : width * 0.06,
   },
   squareCard: {
     flex: 1,
@@ -137,42 +138,40 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    fontSize: safeSize * 0.07,
-    marginBottom: safeSize * 0.03,
-    lineHeight: safeSize * 0.09,
+    fontSize: isRound ? safeSize * 0.07 : width * 0.08,
+    marginBottom: isRound ? safeSize * 0.03 : height * 0.03,
+    lineHeight: isRound ? safeSize * 0.09 : height * 0.09,
     maxWidth: '90%',
   },
   cardIntegral: {
-    fontSize: safeSize * 0.05,
+    fontSize: isRound ? safeSize * 0.05 : width * 0.055,
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: safeSize * 0.03,
+    marginBottom: isRound ? safeSize * 0.03 : height * 0.03,
     fontWeight: 'bold',
   },
   cardImgWrapper: {
-    width: safeSize * 0.22,
-    height: safeSize * 0.22,
-    borderRadius: safeSize * 0.06,
+    width: isRound ? safeSize * 0.22 : width * 0.25,
+    height: isRound ? safeSize * 0.22 : width * 0.25,
+    borderRadius: isRound ? safeSize * 0.06 : width * 0.06,
     backgroundColor: '#f8fafd',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginTop: safeSize * 0.02,
+    marginTop: isRound ? safeSize * 0.02 : height * 0.02,
   },
   cardImg: {
-    width: safeSize * 0.18,
-    height: safeSize * 0.18,
-    borderRadius: safeSize * 0.04,
+    borderRadius: isRound ? safeSize * 0.04 : width * 0.04,
     backgroundColor: '#f8fafd',
   },
   emptyContainer: {
     flex: 1,
-    height: safeSize,
+    height: isRound ? safeSize : height,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: isRound ? 18 : 20,
     color: '#888',
   },
 });

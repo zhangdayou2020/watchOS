@@ -5,8 +5,9 @@ import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
 
 const {width, height} = Dimensions.get('window');
-const safeSize = Math.min(width, height);
-const ITEM_HEIGHT = safeSize - safeSize * 0.12;
+const isRound = Math.abs(width - height) < 10; // 近似判断为圆盘
+const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
+const ITEM_HEIGHT = isRound ? safeSize - safeSize * 0.12 : height * 0.88;
 
 const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
@@ -84,7 +85,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           borderRadius: 8,
           overflow: 'hidden',
         }}>
-          width: {width}, height: {height}, safeSize: {safeSize}
+          width: {width}, height: {height}, safeSize: {safeSize} | {isRound ? '圆盘' : '方盘'}
         </Text>
       </View>
     </WearOSGestureHandler>
@@ -99,57 +100,57 @@ const styles = StyleSheet.create({
   // 滑动指示器
   scrollIndicator: {
     position: 'absolute',
-    top: safeSize * 0.02,
+    top: isRound ? safeSize * 0.02 : height * 0.02,
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: safeSize * 0.03,
-    paddingHorizontal: safeSize * 0.03,
-    paddingVertical: safeSize * 0.012,
+    borderRadius: isRound ? safeSize * 0.03 : width * 0.03,
+    paddingHorizontal: isRound ? safeSize * 0.03 : width * 0.03,
+    paddingVertical: isRound ? safeSize * 0.012 : height * 0.012,
     zIndex: 16,
   },
   scrollIndicatorText: {
     color: '#fff',
-    fontSize: safeSize * 0.04,
+    fontSize: isRound ? safeSize * 0.04 : width * 0.045,
     fontWeight: 'bold',
   },
   emptyContainer: {
     flex: 1,
-    height: safeSize,
+    height: isRound ? safeSize : height,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: safeSize * 0.06,
+    fontSize: isRound ? safeSize * 0.06 : width * 0.07,
     color: '#888',
   },
   title: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    marginBottom: safeSize * 0.035,
-    lineHeight: safeSize * 0.06,
+    marginBottom: isRound ? safeSize * 0.035 : height * 0.03,
+    lineHeight: isRound ? safeSize * 0.06 : height * 0.06,
     maxWidth: '90%',
     alignSelf: 'center',
-    fontSize: safeSize * 0.055,
+    fontSize: isRound ? safeSize * 0.055 : width * 0.06,
   },
   category: {
-    fontSize: safeSize * 0.045,
+    fontSize: isRound ? safeSize * 0.045 : width * 0.05,
     color: '#888',
     textAlign: 'center',
-    marginBottom: safeSize * 0.01,
+    marginBottom: isRound ? safeSize * 0.01 : height * 0.01,
   },
   integral: {
-    fontSize: safeSize * 0.045,
+    fontSize: isRound ? safeSize * 0.045 : width * 0.05,
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: safeSize * 0.01,
+    marginBottom: isRound ? safeSize * 0.01 : height * 0.01,
     fontWeight: '500',
   },
   statusTodo: {
-    fontSize: safeSize * 0.045,
+    fontSize: isRound ? safeSize * 0.045 : width * 0.05,
     color: '#1976d2',
     textAlign: 'center',
-    marginTop: safeSize * 0.005,
+    marginTop: isRound ? safeSize * 0.005 : height * 0.005,
     fontWeight: '500',
   },
 });

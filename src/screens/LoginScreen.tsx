@@ -22,12 +22,13 @@ const KEYS = [
 ];
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const safeSize = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT);
-const CODE_BOX_WIDTH = safeSize * 0.6;
-const CODE_DIGIT_SIZE = safeSize * 0.075;
-const KEY_SIZE = safeSize * 0.13;
-const KEY_FONT_SIZE = safeSize * 0.055;
-const CODE_FONT_SIZE = safeSize * 0.055;
+const isRound = Math.abs(SCREEN_WIDTH - SCREEN_HEIGHT) < 10; // 近似判断为圆盘
+const safeSize = isRound ? Math.min(SCREEN_WIDTH, SCREEN_HEIGHT) : Math.max(SCREEN_WIDTH, SCREEN_HEIGHT);
+const CODE_BOX_WIDTH = isRound ? safeSize * 0.6 : SCREEN_WIDTH * 0.8;
+const CODE_DIGIT_SIZE = isRound ? safeSize * 0.075 : SCREEN_WIDTH * 0.09;
+const KEY_SIZE = isRound ? safeSize * 0.13 : SCREEN_WIDTH * 0.18;
+const KEY_FONT_SIZE = isRound ? safeSize * 0.055 : SCREEN_WIDTH * 0.06;
+const CODE_FONT_SIZE = isRound ? safeSize * 0.055 : SCREEN_WIDTH * 0.06;
 
 const LoginScreen = () => {
   const navigation =
@@ -103,6 +104,7 @@ const LoginScreen = () => {
                       ? styles.delKey
                       : null,
                     key === 'ok' && code.length !== 6 ? styles.keyDisabled : null,
+                    { width: KEY_SIZE, height: KEY_SIZE, borderRadius: KEY_SIZE / 2 },
                   ]}
                   onPress={() => handlePress(key)}
                   disabled={loading || (key === 'ok' && code.length !== 6)}
@@ -115,6 +117,7 @@ const LoginScreen = () => {
                         : key === 'del'
                         ? styles.delKeyText
                         : null,
+                      { fontSize: KEY_FONT_SIZE },
                     ]}>
                     {key === 'del' ? '⌫' : key === 'ok' ? '配对' : key}
                   </Text>
@@ -123,6 +126,23 @@ const LoginScreen = () => {
             </View>
           ))}
         </View>
+      </View>
+      {/* 尺寸调试信息 */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          bottom: 10,
+          left: 0,
+          right: 0,
+          alignItems: 'center',
+          opacity: 0.5,
+          zIndex: 999,
+        }}
+      >
+        <Text style={{ fontSize: 12, color: '#333' }}>
+          width: {SCREEN_WIDTH} | height: {SCREEN_HEIGHT} | safeSize: {safeSize} | {isRound ? '圆盘' : '方盘'}
+        </Text>
       </View>
     </SafeAreaView>
   );
@@ -138,19 +158,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
-    paddingHorizontal: safeSize * 0.07,
+    paddingHorizontal: isRound ? safeSize * 0.07 : SCREEN_WIDTH * 0.05,
   },
   codeBox: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: safeSize * 0.04,
-    marginTop: safeSize * 0.10,
+    marginBottom: isRound ? safeSize * 0.04 : SCREEN_HEIGHT * 0.03,
+    marginTop: isRound ? safeSize * 0.10 : SCREEN_HEIGHT * 0.08,
     width: CODE_BOX_WIDTH,
   },
   codeDigitBox: {
     width: CODE_DIGIT_SIZE,
     height: CODE_DIGIT_SIZE * 1.2,
-    marginHorizontal: safeSize * 0.01,
+    marginHorizontal: isRound ? safeSize * 0.01 : SCREEN_WIDTH * 0.01,
     borderBottomWidth: 2,
     borderColor: '#1976d2',
     alignItems: 'center',
@@ -169,44 +189,35 @@ const styles = StyleSheet.create({
     width: CODE_BOX_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: safeSize * 0.01,
+    marginTop: isRound ? safeSize * 0.01 : SCREEN_HEIGHT * 0.01,
   },
   keyRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: safeSize * 0.025,
+    marginBottom: isRound ? safeSize * 0.025 : SCREEN_HEIGHT * 0.015,
   },
   key: {
-    width: KEY_SIZE,
-    height: KEY_SIZE,
-    marginHorizontal: safeSize * 0.01,
     backgroundColor: '#f2f2f2',
-    borderRadius: KEY_SIZE / 2,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 1,
   },
   keyText: {
-    fontSize: KEY_FONT_SIZE,
     fontWeight: 'bold',
     color: '#1976d2',
   },
   okKey: {
     backgroundColor: '#2196f3',
-    borderRadius: KEY_SIZE / 2,
   },
   okKeyText: {
     color: '#fff',
     fontSize: KEY_FONT_SIZE * 0.93,
-    letterSpacing: 1,
   },
   delKey: {
     backgroundColor: '#eee',
-    borderRadius: KEY_SIZE / 2,
   },
   delKeyText: {
     color: '#888',
-    fontSize: KEY_FONT_SIZE,
   },
   keyDisabled: {
     backgroundColor: '#b0c4de',
