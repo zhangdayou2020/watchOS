@@ -7,7 +7,8 @@ import type {RootState} from '@/store';
 const {width, height} = Dimensions.get('window');
 const isRound = Math.abs(width - height) < 10; // 近似判断为圆盘
 const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
-const ITEM_HEIGHT = isRound ? safeSize - safeSize * 0.12 : height * 0.88;
+const INDICATOR_HEIGHT = safeSize * 0.1;
+const ITEM_HEIGHT = isRound ? safeSize : height;
 
 const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
@@ -29,16 +30,15 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   return (
     <WearOSGestureHandler
       onBack={onBack}>
-      <View style={styles.container}>
-        {/* 滑动指示器文本 */}
+      <View style={{flex: 1}}>
+        {/* 指示器绝对定位在顶部 */}
         {tasks && tasks.length > 1 && (
-          <View style={styles.scrollIndicator}>
+          <View style={{ position: 'absolute', top: safeSize * 0.04, left: 0, right: 0, alignItems: 'center', zIndex: 10 }}>
             <Text style={styles.scrollIndicatorText}>
               {currentIndex + 1} / {tasks.length}
             </Text>
           </View>
         )}
-
         <FlatList
           ref={flatListRef}
           data={tasks}
@@ -47,13 +47,14 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
           scrollEventThrottle={16}
+          style={{flex: 1}}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>没有未完成的任务</Text>
             </View>
           }
           renderItem={({item}) => (
-            <View style={{height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center', width: '100%', backgroundColor: 'transparent'}}>
+            <View style={{height: ITEM_HEIGHT, width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
               <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
                 {item.taskName || item.title || '无任务名'}
               </Text>
@@ -64,29 +65,11 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
             </View>
           )}
           getItemLayout={(_, index) => ({
-            length: height,
-            offset: height * index,
+            length: ITEM_HEIGHT,
+            offset: ITEM_HEIGHT * index,
             index,
           })}
         />
-
-        <Text style={{
-          position: 'absolute',
-          bottom: 10,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          fontSize: 13,
-          color: 'red',
-          zIndex: 100,
-          backgroundColor: 'rgba(255,255,255,0.7)',
-          paddingHorizontal: 8,
-          paddingVertical: 2,
-          borderRadius: 8,
-          overflow: 'hidden',
-        }}>
-          width: {width}, height: {height}, safeSize: {safeSize} | {isRound ? '圆盘' : '方盘'}
-        </Text>
       </View>
     </WearOSGestureHandler>
   );

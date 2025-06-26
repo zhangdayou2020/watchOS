@@ -26,8 +26,8 @@ const isRound = Math.abs(SCREEN_WIDTH - SCREEN_HEIGHT) < 10; // 近似判断为�
 const safeSize = isRound ? Math.min(SCREEN_WIDTH, SCREEN_HEIGHT) : Math.max(SCREEN_WIDTH, SCREEN_HEIGHT);
 const CODE_BOX_WIDTH = isRound ? safeSize * 0.6 : SCREEN_WIDTH * 0.8;
 const CODE_DIGIT_SIZE = isRound ? safeSize * 0.075 : SCREEN_WIDTH * 0.09;
-const KEY_SIZE = isRound ? safeSize * 0.13 : SCREEN_WIDTH * 0.18;
-const KEY_FONT_SIZE = isRound ? safeSize * 0.055 : SCREEN_WIDTH * 0.06;
+const KEY_SIZE = isRound ? safeSize * 0.16 : SCREEN_WIDTH * 0.22;
+const KEY_FONT_SIZE = isRound ? safeSize * 0.07 : SCREEN_WIDTH * 0.075;
 const CODE_FONT_SIZE = isRound ? safeSize * 0.055 : SCREEN_WIDTH * 0.06;
 
 const LoginScreen = () => {
@@ -126,23 +126,6 @@ const LoginScreen = () => {
             </View>
           ))}
         </View>
-      </View>
-      {/* 尺寸调试信息 */}
-      <View
-        pointerEvents="none"
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          left: 0,
-          right: 0,
-          alignItems: 'center',
-          opacity: 0.5,
-          zIndex: 999,
-        }}
-      >
-        <Text style={{ fontSize: 12, color: '#333' }}>
-          width: {SCREEN_WIDTH} | height: {SCREEN_HEIGHT} | safeSize: {safeSize} | {isRound ? '圆盘' : '方盘'}
-        </Text>
       </View>
     </SafeAreaView>
   );

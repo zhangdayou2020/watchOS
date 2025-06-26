@@ -7,7 +7,8 @@ import WearOSGestureHandler from './WearOSGestureHandler';
 const { width, height } = Dimensions.get('window');
 const isRound = Math.abs(width - height) < 10; // 近似判断为圆盘
 const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
-const ITEM_HEIGHT = isRound ? safeSize - safeSize * 0.12 : height * 0.88;
+const INDICATOR_HEIGHT = safeSize * 0.1;
+const ITEM_HEIGHT = isRound ? safeSize : height;
 
 const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const gifts = useSelector((state: RootState) => state.gifts);
@@ -22,14 +23,6 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   return (
     <WearOSGestureHandler onBack={onBack}>
       <View style={styles.container}>
-        {/* 顶部编号指示器 */}
-        {gifts && gifts.length > 1 && (
-          <View style={styles.scrollIndicator}>
-            <Text style={styles.scrollIndicatorText}>
-              {currentIndex + 1} / {gifts.length}
-            </Text>
-          </View>
-        )}
         <FlatList
           ref={flatListRef}
           data={gifts}
@@ -38,57 +31,52 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
           scrollEventThrottle={16}
+          style={{ height: ITEM_HEIGHT }}
+          contentContainerStyle={{ height: gifts.length * ITEM_HEIGHT }}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>暂无奖励</Text>
             </View>
           }
-          renderItem={({item}) => (
-            <View style={{height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center', width: '100%', backgroundColor: 'transparent'}}>
-              <Text style={styles.cardTitle} numberOfLines={2} ellipsizeMode="tail">
-                {item.aname || '无奖励名'}
-              </Text>
-              <Text style={styles.cardIntegral}>+{item.integral} 积分</Text>
-              {item.img ? (
-                <View style={styles.cardImgWrapper}>
-                  <Image
-                    source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
-                    style={[styles.cardImg, { width: isRound ? safeSize * 0.18 : width * 0.22, height: isRound ? safeSize * 0.18 : width * 0.22, borderRadius: isRound ? safeSize * 0.04 : width * 0.04 }]}
-                    resizeMode="contain"
-                  />
-                </View>
-              ) : (
-                <View style={styles.cardImgWrapper}>
-                  <View style={{ width: isRound ? safeSize * 0.18 : width * 0.22, height: isRound ? safeSize * 0.18 : width * 0.22, borderRadius: isRound ? safeSize * 0.04 : width * 0.04, backgroundColor: '#f0f2f5', alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: isRound ? safeSize * 0.11 : width * 0.13, color: '#c5cbe3' }}>🎁</Text>
-                  </View>
+          renderItem={({item, index}) => (
+            <View style={{height: ITEM_HEIGHT, width: '100%'}}>
+              {/* 指示器和内容区合并 */}
+              {gifts && gifts.length > 1 && (
+                <View style={[styles.scrollIndicator, { position: 'absolute', top: 0, alignSelf: 'center', zIndex: 10 }]}> 
+                  <Text style={styles.scrollIndicatorText}>
+                    {index + 1} / {gifts.length}
+                  </Text>
                 </View>
               )}
+              <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: safeSize * 0.08}}>
+                <Text style={styles.cardTitle} numberOfLines={2} ellipsizeMode="tail">
+                  {item.aname || '无奖励名'}
+                </Text>
+                <Text style={styles.cardIntegral}>+{item.integral} 积分</Text>
+                {item.img ? (
+                  <View style={styles.cardImgWrapper}>
+                    <Image
+                      source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
+                      style={[styles.cardImg, { width: isRound ? safeSize * 0.18 : width * 0.22, height: isRound ? safeSize * 0.18 : width * 0.22, borderRadius: isRound ? safeSize * 0.04 : width * 0.04 }]}
+                      resizeMode="contain"
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.cardImgWrapper}>
+                    <View style={{ width: isRound ? safeSize * 0.18 : width * 0.22, height: isRound ? safeSize * 0.18 : width * 0.22, borderRadius: isRound ? safeSize * 0.04 : width * 0.04, backgroundColor: '#f0f2f5', alignItems: 'center', justifyContent: 'center' }}>
+                      <Text style={{ fontSize: isRound ? safeSize * 0.11 : width * 0.13, color: '#c5cbe3' }}>🎁</Text>
+                    </View>
+                  </View>
+                )}
+              </View>
             </View>
           )}
           getItemLayout={(_, index) => ({
-            length: height,
-            offset: height * index,
+            length: ITEM_HEIGHT,
+            offset: ITEM_HEIGHT * index,
             index,
           })}
         />
-        <Text style={{
-          position: 'absolute',
-          bottom: 10,
-          left: 0,
-          right: 0,
-          textAlign: 'center',
-          fontSize: 13,
-          color: 'red',
-          zIndex: 100,
-          backgroundColor: 'rgba(255,255,255,0.7)',
-          paddingHorizontal: 8,
-          paddingVertical: 2,
-          borderRadius: 8,
-          overflow: 'hidden',
-        }}>
-          width: {width}, height: {height}, safeSize: {safeSize} | {isRound ? '圆盘' : '方盘'}
-        </Text>
       </View>
     </WearOSGestureHandler>
   );
