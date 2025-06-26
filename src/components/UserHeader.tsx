@@ -1,10 +1,12 @@
 import React from 'react';
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 import type {RootState} from '@/store';
 import { getWidthPercent, getFontSize } from '@/utils/size';
 
 const defaultAvatar = require('@/assets/images/avatar.png');
+const { width, height } = Dimensions.get('window');
+const safeSize = Math.min(width, height);
 
 const UserHeader = () => {
   const user = useSelector((state: RootState) => state.user);
@@ -26,28 +28,28 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: getWidthPercent(0.025),
-    paddingBottom: getWidthPercent(0.01),
+    paddingTop: safeSize * 0.025,
+    paddingBottom: safeSize * 0.01,
     backgroundColor: '#fff',
   },
   avatar: {
-    width: getWidthPercent(0.18),
-    height: getWidthPercent(0.18),
-    borderRadius: getWidthPercent(0.09),
+    width: safeSize * 0.18,
+    height: safeSize * 0.18,
+    borderRadius: safeSize * 0.09,
     backgroundColor: '#eee',
-    marginBottom: getWidthPercent(0.02),
+    marginBottom: safeSize * 0.02,
   },
   name: {
-    fontSize: getFontSize(0.055),
+    fontSize: safeSize * 0.055,
     fontWeight: 'bold',
     color: '#222',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
     textAlign: 'center',
   },
   gp: {
-    fontSize: getFontSize(0.04),
+    fontSize: safeSize * 0.04,
     color: '#4CAF50',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
     textAlign: 'center',
     fontWeight: 'bold',
   },

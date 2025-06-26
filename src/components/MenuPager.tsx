@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import PagerView from 'react-native-pager-view';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import TaskMenuEntry from './TaskMenuEntry';
 import RewardItem from './RewardItem';
 import SettingItem from './SettingItem';
@@ -8,6 +8,9 @@ import UnfinishedTaskDetail from './UnfinishedTaskDetail';
 import FinishedTaskDetail from './FinishedTaskDetail';
 import UserHeader from './UserHeader';
 import { getWidthPercent } from '@/utils/size';
+
+const { width, height } = Dimensions.get('window');
+const safeSize = Math.min(width, height);
 
 const MenuPager: React.FC = () => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
@@ -66,8 +69,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'flex-start',
-    paddingTop: getWidthPercent(0.07),
-    paddingBottom: getWidthPercent(0.03),
+    paddingTop: safeSize * 0.07,
+    paddingBottom: safeSize * 0.03,
   },
 });
 

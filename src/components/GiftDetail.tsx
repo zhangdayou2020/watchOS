@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, Dimensions, FlatList, Image } from 'react-nativ
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import WearOSGestureHandler from './WearOSGestureHandler';
-import { getWidthPercent, getFontSize } from '@/utils/size';
 
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const safeSize = Math.min(width, height);
+const CARD_SIZE = safeSize * 0.85;
+const ITEM_HEIGHT = safeSize - safeSize * 0.12;
 
 const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const gifts = useSelector((state: RootState) => state.gifts);
@@ -31,7 +33,7 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <FlatList
           ref={flatListRef}
           data={gifts}
-          keyExtractor={item => item.aid}
+          keyExtractor={(item, index) => item.aid ? String(item.aid) : String(index)}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
@@ -42,28 +44,26 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </View>
           }
           renderItem={({item}) => (
-            <View style={[styles.page, {height}]}> 
-              <View style={styles.squareCard}>
-                <Text style={styles.cardTitle} numberOfLines={2} ellipsizeMode="tail">
-                  {item.aname || '无奖励名'}
-                </Text>
-                <Text style={styles.cardIntegral}>+{item.integral} 积分</Text>
-                {item.img ? (
-                  <View style={styles.cardImgWrapper}>
-                    <Image
-                      source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
-                      style={styles.cardImg}
-                      resizeMode="contain"
-                    />
+            <View style={{height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center', width: '100%', backgroundColor: 'transparent'}}>
+              <Text style={styles.cardTitle} numberOfLines={2} ellipsizeMode="tail">
+                {item.aname || '无奖励名'}
+              </Text>
+              <Text style={styles.cardIntegral}>+{item.integral} 积分</Text>
+              {item.img ? (
+                <View style={styles.cardImgWrapper}>
+                  <Image
+                    source={{ uri: item.img.startsWith('http') ? item.img : `https://pmuat.handlebook.com.hk/pm/${item.img.replace(/\\/g, '/')}` }}
+                    style={styles.cardImg}
+                    resizeMode="contain"
+                  />
+                </View>
+              ) : (
+                <View style={styles.cardImgWrapper}>
+                  <View style={{ width: safeSize * 0.18, height: safeSize * 0.18, borderRadius: safeSize * 0.04, backgroundColor: '#f0f2f5', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: safeSize * 0.11, color: '#c5cbe3' }}>🎁</Text>
                   </View>
-                ) : (
-                  <View style={styles.cardImgWrapper}>
-                    <View style={styles.placeholderBox}>
-                      <Text style={styles.placeholderIcon}>🎁</Text>
-                    </View>
-                  </View>
-                )}
-              </View>
+                </View>
+              )}
             </View>
           )}
           getItemLayout={(_, index) => ({
@@ -77,20 +77,25 @@ const GiftDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   );
 };
 
-const CARD_SIZE = getWidthPercent(0.45);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
+    backgroundColor: '#fff',
+  },
+  frostedGlass: {
+    flex: 1,
+    backgroundColor: 'rgba(255,255,255,0.65)',
+    borderRadius: getWidthPercent(0.06),
+    margin: getWidthPercent(0.01),
   },
   scrollIndicator: {
     position: 'absolute',
-    top: 8,
+    top: safeSize * 0.02,
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    borderRadius: safeSize * 0.03,
+    paddingHorizontal: safeSize * 0.03,
+    paddingVertical: safeSize * 0.012,
     zIndex: 16,
   },
   scrollIndicatorText: {
@@ -102,70 +107,57 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    backgroundColor: '#f0f2f5',
+    padding: safeSize * 0.06,
   },
   squareCard: {
-    width: CARD_SIZE,
-    height: CARD_SIZE,
-    backgroundColor: '#fff',
-    borderRadius: getWidthPercent(0.08),
+    flex: 1,
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: getWidthPercent(0.025),
-    elevation: 3,
-    padding: getWidthPercent(0.03),
+    alignSelf: 'center',
+    padding: 0,
+    backgroundColor: 'transparent',
+    elevation: 0,
+    shadowColor: 'transparent',
+    shadowOpacity: 0,
+    shadowRadius: 0,
   },
   cardTitle: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    fontSize: getFontSize(0.055),
-    marginBottom: getWidthPercent(0.02),
-    lineHeight: getFontSize(0.07),
+    fontSize: safeSize * 0.07,
+    marginBottom: safeSize * 0.03,
+    lineHeight: safeSize * 0.09,
     maxWidth: '90%',
   },
   cardIntegral: {
-    fontSize: getFontSize(0.04),
+    fontSize: safeSize * 0.05,
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.02),
+    marginBottom: safeSize * 0.03,
     fontWeight: 'bold',
   },
   cardImgWrapper: {
-    width: getWidthPercent(0.13),
-    height: getWidthPercent(0.13),
-    borderRadius: getWidthPercent(0.035),
+    width: safeSize * 0.22,
+    height: safeSize * 0.22,
+    borderRadius: safeSize * 0.06,
     backgroundColor: '#f8fafd',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    marginTop: getWidthPercent(0.01),
+    marginTop: safeSize * 0.02,
   },
   cardImg: {
-    width: getWidthPercent(0.11),
-    height: getWidthPercent(0.11),
-    borderRadius: getWidthPercent(0.02),
+    width: safeSize * 0.18,
+    height: safeSize * 0.18,
+    borderRadius: safeSize * 0.04,
     backgroundColor: '#f8fafd',
-  },
-  placeholderBox: {
-    width: getWidthPercent(0.11),
-    height: getWidthPercent(0.11),
-    borderRadius: getWidthPercent(0.02),
-    backgroundColor: '#f0f2f5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  placeholderIcon: {
-    fontSize: getFontSize(0.07),
-    color: '#c5cbe3',
   },
   emptyContainer: {
     flex: 1,
-    height: height,
+    height: safeSize,
     justifyContent: 'center',
     alignItems: 'center',
   },

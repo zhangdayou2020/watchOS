@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, Dimensions} from 'react-native';
 import MenuPager from '@/components/MenuPager';
 import { useDispatch, useSelector } from 'react-redux';
 import { setTasks } from '@/store/tasksSlice';
@@ -8,6 +8,9 @@ import type { RootState } from '@/store';
 import { getAwardListByCid } from '@/api/gift';
 import { setAwards } from '@/store/giftSlice';
 import { getWidthPercent } from '@/utils/size';
+
+const { width, height } = Dimensions.get('window');
+const safeSize = Math.min(width, height);
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
@@ -56,8 +59,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingHorizontal: getWidthPercent(0.03),
-    paddingTop: getWidthPercent(0.03),
+    paddingHorizontal: safeSize * 0.03,
+    paddingTop: safeSize * 0.03,
   },
 });
 

@@ -51,7 +51,7 @@ const TaskListPager: React.FC<TaskListPagerProps> = ({type}) => {
   return (
     <FlatList
       data={tasks}
-      keyExtractor={item => (item as any).tid || (item as any).id}
+      keyExtractor={(item, index) => (item as any).tid ? String((item as any).tid) : (item as any).id ? String((item as any).id) : String(index)}
       contentContainerStyle={styles.listContent}
       renderItem={({item}) => <TaskCard task={item} />}
       showsVerticalScrollIndicator={false}

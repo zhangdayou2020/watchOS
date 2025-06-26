@@ -12,6 +12,8 @@ import {setUserInfo} from '@/store/userSlice';
 
 const Stack = createNativeStackNavigator();
 
+console.log('App started');
+
 function AppContent() {
   const dispatch = useDispatch();
 

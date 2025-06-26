@@ -6,6 +6,7 @@ import {
   Vibration,
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { getWidthPercent } from '@/utils/size';
 
 interface WearOSGestureHandlerProps {
   onBack: () => void;
@@ -70,41 +71,40 @@ const WearOSGestureHandler: React.FC<WearOSGestureHandlerProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
     flexDirection: 'row',
+    backgroundColor: 'transparent',
   },
   touchZoneLeft: {
     position: 'absolute',
     left: 0,
     top: 0,
     bottom: 0,
-    width: '25%', // 增大点击区域
-    zIndex: 20,
+    width: getWidthPercent(0.18),
+    zIndex: 10,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    paddingLeft: 4,
   },
   touchZoneRight: {
     position: 'absolute',
     right: 0,
     top: 0,
     bottom: 0,
-    width: '25%', // 增大点击区域
-    zIndex: 20,
+    width: getWidthPercent(0.18),
+    zIndex: 10,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    paddingRight: 4,
   },
   indicator: {
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.04)',
-    borderRadius: 22,
+    padding: getWidthPercent(0.01),
+    borderRadius: getWidthPercent(0.08),
+    backgroundColor: 'rgba(255,255,255,0.7)',
+    marginLeft: getWidthPercent(0.01),
+    marginRight: getWidthPercent(0.01),
   },
   content: {
     flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

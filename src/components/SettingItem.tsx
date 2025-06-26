@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import { getWidthPercent, getFontSize } from '@/utils/size';
 
 interface TaskItemProps {
@@ -8,6 +8,9 @@ interface TaskItemProps {
   status?: 'unfinished' | 'finished';
   reward?: string;
 }
+
+const { width, height } = Dimensions.get('window');
+const safeSize = Math.min(width, height);
 
 const TaskItem: React.FC<TaskItemProps> = ({title, desc, status, reward}) => {
   return (
@@ -26,31 +29,31 @@ const TaskItem: React.FC<TaskItemProps> = ({title, desc, status, reward}) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: getWidthPercent(0.04),
-    borderRadius: getWidthPercent(0.025),
+    padding: safeSize * 0.04,
+    borderRadius: safeSize * 0.025,
     backgroundColor: '#f8fafd',
-    marginVertical: getWidthPercent(0.02),
-    marginHorizontal: getWidthPercent(0.03),
+    marginVertical: safeSize * 0.02,
+    marginHorizontal: safeSize * 0.03,
     elevation: 1,
   },
   title: {
-    fontSize: getFontSize(0.05),
+    fontSize: safeSize * 0.05,
     fontWeight: 'bold',
     color: '#1976d2',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
   },
   finished: {
-    fontSize: getFontSize(0.04),
+    fontSize: safeSize * 0.04,
     color: '#4CAF50',
     fontWeight: 'normal',
   },
   desc: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#444',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
   },
   reward: {
-    fontSize: getFontSize(0.04),
+    fontSize: safeSize * 0.04,
     color: '#ff9800',
   },
 });

@@ -1,11 +1,13 @@
 import React, {useRef, useState} from 'react';
-import { View, Text, StyleSheet, Dimensions, FlatList } from 'react-native';
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store';
+import {View, Text, StyleSheet, Dimensions, FlatList} from 'react-native';
+import {useSelector} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
-import { getWidthPercent, getFontSize } from '@/utils/size';
+import type {RootState} from '@/store';
 
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+const safeSize = Math.min(width, height);
+const CARD_SIZE = safeSize * 0.85;
+const ITEM_HEIGHT = safeSize - safeSize * 0.12;
 
 const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const tasks = useSelector((state: RootState) => state.tasks.finished);
@@ -38,7 +40,7 @@ const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <FlatList
           ref={flatListRef}
           data={tasks}
-          keyExtractor={item => (item as any).tid || (item as any).id}
+          keyExtractor={(item, index) => (item as any).tid ? String((item as any).tid) : (item as any).id ? String((item as any).id) : String(index)}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
@@ -49,7 +51,7 @@ const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
             </View>
           }
           renderItem={({item}) => (
-            <View style={[styles.page, {height}]}> 
+            <View style={{height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center', width: '100%', backgroundColor: 'transparent'}}>
               <View style={styles.contentBox}>
                 <Text
                   style={styles.title}
@@ -79,74 +81,77 @@ const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5',
+    backgroundColor: '#fff',
   },
   scrollIndicator: {
     position: 'absolute',
-    top: getWidthPercent(0.02),
+    top: safeSize * 0.02,
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: getWidthPercent(0.03),
-    paddingHorizontal: getWidthPercent(0.03),
-    paddingVertical: getWidthPercent(0.012),
+    borderRadius: safeSize * 0.03,
+    paddingHorizontal: safeSize * 0.03,
+    paddingVertical: safeSize * 0.012,
     zIndex: 16,
   },
   scrollIndicatorText: {
     color: '#fff',
-    fontSize: getFontSize(0.04),
+    fontSize: safeSize * 0.04,
     fontWeight: 'bold',
   },
   page: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: getWidthPercent(0.09),
+    alignItems: 'center',
+    backgroundColor: '#f0f2f5',
+    padding: safeSize * 0.06,
   },
   contentBox: {
     flex: 1,
-    justifyContent: 'flex-start',
+    width: '100%',
     alignItems: 'center',
-    minHeight: getWidthPercent(0.3),
-    paddingTop: getWidthPercent(0.15),
-    paddingBottom: getWidthPercent(0.04),
+    justifyContent: 'center',
+    alignSelf: 'center',
+    padding: 0,
+    backgroundColor: 'transparent',
   },
   title: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.035),
-    lineHeight: getFontSize(0.06),
+    marginBottom: safeSize * 0.035,
+    lineHeight: safeSize * 0.06,
     maxWidth: '90%',
     alignSelf: 'center',
-    fontSize: getFontSize(0.055),
+    fontSize: safeSize * 0.055,
   },
   category: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#888',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
   },
   integral: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
     fontWeight: '500',
   },
   statusDone: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#4caf50',
     textAlign: 'center',
-    marginTop: getWidthPercent(0.005),
+    marginTop: safeSize * 0.005,
     fontWeight: '500',
   },
   emptyContainer: {
     flex: 1,
-    height: getWidthPercent(1),
+    height: safeSize,
     justifyContent: 'center',
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: getFontSize(0.06),
+    fontSize: safeSize * 0.06,
     color: '#888',
   },
 });

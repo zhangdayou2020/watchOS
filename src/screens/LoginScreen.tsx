@@ -1,12 +1,13 @@
 import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert, Dimensions, SafeAreaView} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Alert, SafeAreaView, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useDispatch} from 'react-redux';
 import {useLoginWithPairCode} from '@/hooks/useLoginWithPairCode';
 import {setUserInfo} from '@/store/userSlice';
 import {saveUserToStorage} from '@/utils/storage';
-import { getWidthPercent, getFontSize } from '@/utils/size';
+import { getWidthPercent, getHeightPercent, getFontSize } from '@/utils/size';
+import Toast from 'react-native-root-toast';
 
 type RootStackParamList = {
   Home: undefined;
@@ -21,12 +22,12 @@ const KEYS = [
 ];
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const CIRCLE_SIZE = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT);
-const CODE_BOX_WIDTH = CIRCLE_SIZE * 0.6;
-const CODE_DIGIT_SIZE = CIRCLE_SIZE * 0.075;
-const KEY_SIZE = CIRCLE_SIZE * 0.13;
-const KEY_FONT_SIZE = CIRCLE_SIZE * 0.055;
-const CODE_FONT_SIZE = CIRCLE_SIZE * 0.055;
+const safeSize = Math.min(SCREEN_WIDTH, SCREEN_HEIGHT);
+const CODE_BOX_WIDTH = safeSize * 0.6;
+const CODE_DIGIT_SIZE = safeSize * 0.075;
+const KEY_SIZE = safeSize * 0.13;
+const KEY_FONT_SIZE = safeSize * 0.055;
+const CODE_FONT_SIZE = safeSize * 0.055;
 
 const LoginScreen = () => {
   const navigation =
@@ -58,9 +59,16 @@ const LoginScreen = () => {
       if (res.status === 'SUCCESS') {
         dispatch(setUserInfo(res.data));
         saveUserToStorage(res.data);
-        Alert.alert('配对成功', '正在进入主页', [
-          {text: '确定', onPress: () => navigation.replace('Home')},
-        ]);
+        Toast.show('配对成功，正在进入主页', {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.CENTER,
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+        });
+        setTimeout(() => {
+          navigation.replace('Home');
+        }, 1500);
         console.log('配对成功，用户数据:', res.data);
       } else {
         Alert.alert('配对失败', res.reason || '网络异常，请重试');
@@ -130,19 +138,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#fff',
-    paddingHorizontal: CIRCLE_SIZE * 0.07,
+    paddingHorizontal: safeSize * 0.07,
   },
   codeBox: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: CIRCLE_SIZE * 0.04,
-    marginTop: CIRCLE_SIZE * 0.10,
+    marginBottom: safeSize * 0.04,
+    marginTop: safeSize * 0.10,
     width: CODE_BOX_WIDTH,
   },
   codeDigitBox: {
     width: CODE_DIGIT_SIZE,
     height: CODE_DIGIT_SIZE * 1.2,
-    marginHorizontal: CIRCLE_SIZE * 0.01,
+    marginHorizontal: safeSize * 0.01,
     borderBottomWidth: 2,
     borderColor: '#1976d2',
     alignItems: 'center',
@@ -161,17 +169,17 @@ const styles = StyleSheet.create({
     width: CODE_BOX_WIDTH,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: CIRCLE_SIZE * 0.01,
+    marginTop: safeSize * 0.01,
   },
   keyRow: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginBottom: CIRCLE_SIZE * 0.025,
+    marginBottom: safeSize * 0.025,
   },
   key: {
     width: KEY_SIZE,
     height: KEY_SIZE,
-    marginHorizontal: CIRCLE_SIZE * 0.01,
+    marginHorizontal: safeSize * 0.01,
     backgroundColor: '#f2f2f2',
     borderRadius: KEY_SIZE / 2,
     justifyContent: 'center',

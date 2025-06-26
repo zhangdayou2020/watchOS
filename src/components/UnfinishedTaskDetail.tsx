@@ -1,11 +1,12 @@
-import React, {useRef, useState, useCallback} from 'react';
-import {View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity} from 'react-native';
+import React, {useRef, useState} from 'react';
+import {View, Text, StyleSheet, Dimensions, FlatList} from 'react-native';
 import {useSelector} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
-import { getWidthPercent, getFontSize } from '@/utils/size';
 
-const {height} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
+const safeSize = Math.min(width, height);
+const ITEM_HEIGHT = safeSize - safeSize * 0.12;
 
 const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
@@ -40,7 +41,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
         <FlatList
           ref={flatListRef}
           data={tasks}
-          keyExtractor={item => item.id}
+          keyExtractor={(item, index) => item.id ? String(item.id) : String(index)}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
@@ -51,16 +52,14 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
             </View>
           }
           renderItem={({item}) => (
-            <View style={[styles.page, {height}]}> 
-              <View style={styles.contentBox}>
-                <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
-                  {item.taskName || item.title || '无任务名'}
-                </Text>
-                <View style={{height: getWidthPercent(0.02)}} />
-                <Text style={styles.category}>{item.taskCategory || item.desc || '无分类'}</Text>
-                <Text style={styles.integral}>+{item.taskIntegral || item.reward || 0} 积分</Text>
-                <Text style={styles.statusTodo}>{item.complete === 'Y' ? '已完成' : '未完成'}</Text>
-              </View>
+            <View style={{height: ITEM_HEIGHT, alignItems: 'center', justifyContent: 'center', width: '100%', backgroundColor: 'transparent'}}>
+              <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+                {item.taskName || item.title || '无任务名'}
+              </Text>
+              <View style={{height: safeSize * 0.02}} />
+              <Text style={styles.category}>{item.taskCategory || item.desc || '无分类'}</Text>
+              <Text style={styles.integral}>+{item.taskIntegral || item.reward || 0} 积分</Text>
+              <Text style={styles.statusTodo}>{item.complete === 'Y' ? '已完成' : '未完成'}</Text>
             </View>
           )}
           getItemLayout={(_, index) => ({
@@ -77,81 +76,62 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f2f5', // 使用柔和的背景色
+    backgroundColor: '#fff',
   },
   // 滑动指示器
   scrollIndicator: {
     position: 'absolute',
-    top: getWidthPercent(0.02),
+    top: safeSize * 0.02,
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: getWidthPercent(0.03),
-    paddingHorizontal: getWidthPercent(0.03),
-    paddingVertical: getWidthPercent(0.012),
+    borderRadius: safeSize * 0.03,
+    paddingHorizontal: safeSize * 0.03,
+    paddingVertical: safeSize * 0.012,
     zIndex: 16,
   },
   scrollIndicatorText: {
     color: '#fff',
-    fontSize: getFontSize(0.04),
+    fontSize: safeSize * 0.04,
     fontWeight: 'bold',
   },
-  page: {
+  emptyContainer: {
     flex: 1,
+    height: safeSize,
     justifyContent: 'center',
-    paddingHorizontal: getWidthPercent(0.09),
-  },
-  contentBox: {
-    flex: 1,
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    minHeight: getWidthPercent(0.3),
-    paddingTop: getWidthPercent(0.15),
-    paddingBottom: getWidthPercent(0.04),
+  },
+  emptyText: {
+    fontSize: safeSize * 0.06,
+    color: '#888',
   },
   title: {
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.035),
-    lineHeight: getFontSize(0.06),
+    marginBottom: safeSize * 0.035,
+    lineHeight: safeSize * 0.06,
     maxWidth: '90%',
     alignSelf: 'center',
-    fontSize: getFontSize(0.055),
-  },
-  desc: {
-    fontSize: getFontSize(0.045),
-    color: '#666',
-    textAlign: 'center',
-    lineHeight: getFontSize(0.06),
-  },
-  emptyContainer: {
-    flex: 1,
-    height: getWidthPercent(1),
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: getFontSize(0.06),
-    color: '#888',
+    fontSize: safeSize * 0.055,
   },
   category: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#888',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
   },
   integral: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#ff9800',
     textAlign: 'center',
-    marginBottom: getWidthPercent(0.01),
+    marginBottom: safeSize * 0.01,
     fontWeight: '500',
   },
   statusTodo: {
-    fontSize: getFontSize(0.045),
+    fontSize: safeSize * 0.045,
     color: '#1976d2',
     textAlign: 'center',
-    marginTop: getWidthPercent(0.005),
+    marginTop: safeSize * 0.005,
     fontWeight: '500',
   },
 });

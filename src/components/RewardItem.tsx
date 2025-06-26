@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Dimensions} from 'react-native';
 import { useSelector } from 'react-redux';
 import type { RootState } from '@/store';
 import GiftDetail from './GiftDetail';
@@ -12,6 +12,8 @@ interface RewardItemProps {
 const RewardItem: React.FC<RewardItemProps> = ({ onEnterDetail }) => {
   const count = useSelector((state: RootState) => state.gifts.length);
   const disabled = count === 0;
+  const { width, height } = Dimensions.get('window');
+  const safeSize = Math.min(width, height);
 
   return (
     <TouchableOpacity
@@ -27,12 +29,12 @@ const RewardItem: React.FC<RewardItemProps> = ({ onEnterDetail }) => {
 
 const styles = StyleSheet.create({
   entry: {
-    padding: getWidthPercent(0.07),
+    padding: safeSize * 0.07,
     alignItems: 'center',
     justifyContent: 'center',
   },
   title: {
-    fontSize: getFontSize(0.065),
+    fontSize: safeSize * 0.065,
     fontWeight: 'bold',
     color: '#1976d2',
   },
