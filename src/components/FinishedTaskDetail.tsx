@@ -4,36 +4,48 @@ import {useSelector} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
 
-const { width, height } = Dimensions.get('window');
-const isRound = Math.abs(width - height) < 10; // 近似判断为圆盘
+const {width, height} = Dimensions.get('window');
+const isRound = Math.abs(width - height) < 10;
 const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
-const CARD_SIZE = isRound ? safeSize * 0.85 : width * 0.92;
-const INDICATOR_HEIGHT = safeSize * 0.1;
-const ITEM_HEIGHT = isRound ? safeSize : height;
+const ITEM_HEIGHT = height; // 统一使用屏幕高度
 
-const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
+const FinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.finished);
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const onMomentumScrollEnd = (e: any) => {
-    const idx = Math.round(e.nativeEvent.contentOffset.y / height);
-    setCurrentIndex(idx);
-  };
-
-  const scrollToIndex = (index: number) => {
-    if (index >= 0 && index < tasks.length) {
-      flatListRef.current?.scrollToIndex({index, animated: true});
-      setCurrentIndex(index);
+    const offsetY = e.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    setCurrentIndex(index);
+    
+    // 确保滚动到精确位置
+    if (Math.abs(offsetY - index * ITEM_HEIGHT) > 1) {
+      flatListRef.current?.scrollToOffset({
+        offset: index * ITEM_HEIGHT,
+        animated: true
+      });
     }
   };
 
   return (
-    <WearOSGestureHandler onBack={onBack}>
+    <WearOSGestureHandler
+      onBack={onBack}>
       <View style={{flex: 1}}>
         {/* 指示器绝对定位在顶部 */}
-        {tasks && tasks.length > 1 && (
-          <View style={{ position: 'absolute', top: safeSize * 0.04, left: 0, right: 0, alignItems: 'center', zIndex: 10 }}>
+        {tasks && tasks.length > 0 && (
+          <View style={{ 
+            position: 'absolute', 
+            top: safeSize * 0.06, 
+            left: 0, 
+            right: 0, 
+            alignItems: 'center', 
+            zIndex: 100,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            paddingHorizontal: safeSize * 0.03,
+            paddingVertical: safeSize * 0.01,
+            borderRadius: safeSize * 0.02
+          }}>
             <Text style={styles.scrollIndicatorText}>
               {currentIndex + 1} / {tasks.length}
             </Text>
@@ -42,32 +54,27 @@ const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         <FlatList
           ref={flatListRef}
           data={tasks}
-          keyExtractor={(item, index) => (item as any).tid ? String((item as any).tid) : (item as any).id ? String((item as any).id) : String(index)}
-          pagingEnabled
+          keyExtractor={(item, index) => item.id ? String(item.id) : String(index)}
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
-          scrollEventThrottle={16}
           style={{flex: 1}}
+          snapToInterval={ITEM_HEIGHT}
+          snapToAlignment="start"
+          decelerationRate="fast"
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>没有已完成的任务</Text>
             </View>
           }
           renderItem={({item}) => (
-            <View style={{height: ITEM_HEIGHT, width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-              <View style={styles.contentBox}>
-                <Text
-                  style={styles.title}
-                  numberOfLines={2}
-                  ellipsizeMode="tail"
-                >
-                  {(item as any).taskName || (item as any).title || '无任务名'}
-                </Text>
-                <View style={{ height: 10 }} />
-                <Text style={styles.category}>{(item as any).taskCategory || '无分类'}</Text>
-                <Text style={styles.integral}>+{(item as any).taskIntegral || 0} 积分</Text>
-                <Text style={styles.statusDone}>已完成</Text>
-              </View>
+            <View style={{height: ITEM_HEIGHT, width: '100%', justifyContent: 'center', alignItems: 'center'}}>
+              <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+                {item.taskName || item.title || '无任务名'}
+              </Text>
+              <View style={{height: safeSize * 0.02}} />
+              <Text style={styles.category}>{item.taskCategory || item.desc || '无分类'}</Text>
+              <Text style={styles.integral}>+{item.taskIntegral || item.reward || 0} 积分</Text>
+              <Text style={styles.statusDone}>{item.complete === 'Y' ? '已完成' : '未完成'}</Text>
             </View>
           )}
           getItemLayout={(_, index) => ({
@@ -82,40 +89,20 @@ const FinishedTaskDetail: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  scrollIndicator: {
-    position: 'absolute',
-    top: isRound ? safeSize * 0.02 : height * 0.02,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: isRound ? safeSize * 0.03 : width * 0.03,
-    paddingHorizontal: isRound ? safeSize * 0.03 : width * 0.03,
-    paddingVertical: isRound ? safeSize * 0.012 : height * 0.012,
-    zIndex: 16,
-  },
   scrollIndicatorText: {
     color: '#fff',
     fontSize: isRound ? safeSize * 0.04 : width * 0.045,
     fontWeight: 'bold',
   },
-  page: {
+  emptyContainer: {
     flex: 1,
+    height: ITEM_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f0f2f5',
-    padding: isRound ? safeSize * 0.06 : width * 0.06,
   },
-  contentBox: {
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    padding: 0,
-    backgroundColor: 'transparent',
+  emptyText: {
+    fontSize: isRound ? safeSize * 0.06 : width * 0.07,
+    color: '#888',
   },
   title: {
     fontWeight: 'bold',
@@ -146,16 +133,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: isRound ? safeSize * 0.005 : height * 0.005,
     fontWeight: '500',
-  },
-  emptyContainer: {
-    flex: 1,
-    height: isRound ? safeSize : height,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    fontSize: isRound ? safeSize * 0.06 : width * 0.07,
-    color: '#888',
   },
 });
 

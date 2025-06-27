@@ -5,10 +5,9 @@ import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
 
 const {width, height} = Dimensions.get('window');
-const isRound = Math.abs(width - height) < 10; // 近似判断为圆盘
+const isRound = Math.abs(width - height) < 10;
 const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
-const INDICATOR_HEIGHT = safeSize * 0.1;
-const ITEM_HEIGHT = isRound ? safeSize : height;
+const ITEM_HEIGHT = height; // 统一使用屏幕高度
 
 const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
@@ -16,8 +15,17 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const onMomentumScrollEnd = (e: any) => {
-    const idx = Math.round(e.nativeEvent.contentOffset.y / height);
-    setCurrentIndex(idx);
+    const offsetY = e.nativeEvent.contentOffset.y;
+    const index = Math.round(offsetY / ITEM_HEIGHT);
+    setCurrentIndex(index);
+    
+    // 确保滚动到精确位置
+    if (Math.abs(offsetY - index * ITEM_HEIGHT) > 1) {
+      flatListRef.current?.scrollToOffset({
+        offset: index * ITEM_HEIGHT,
+        animated: true
+      });
+    }
   };
 
   const scrollToIndex = (index: number) => {
@@ -32,8 +40,19 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
       onBack={onBack}>
       <View style={{flex: 1}}>
         {/* 指示器绝对定位在顶部 */}
-        {tasks && tasks.length > 1 && (
-          <View style={{ position: 'absolute', top: safeSize * 0.04, left: 0, right: 0, alignItems: 'center', zIndex: 10 }}>
+        {tasks && tasks.length > 0 && (
+          <View style={{ 
+            position: 'absolute', 
+            top: safeSize * 0.06, 
+            left: 0, 
+            right: 0, 
+            alignItems: 'center', 
+            zIndex: 100,
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            paddingHorizontal: safeSize * 0.03,
+            paddingVertical: safeSize * 0.01,
+            borderRadius: safeSize * 0.02
+          }}>
             <Text style={styles.scrollIndicatorText}>
               {currentIndex + 1} / {tasks.length}
             </Text>
@@ -43,18 +62,19 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           ref={flatListRef}
           data={tasks}
           keyExtractor={(item, index) => item.id ? String(item.id) : String(index)}
-          pagingEnabled
           showsVerticalScrollIndicator={false}
           onMomentumScrollEnd={onMomentumScrollEnd}
-          scrollEventThrottle={16}
           style={{flex: 1}}
+          snapToInterval={ITEM_HEIGHT}
+          snapToAlignment="start"
+          decelerationRate="fast"
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>没有未完成的任务</Text>
             </View>
           }
           renderItem={({item}) => (
-            <View style={{height: ITEM_HEIGHT, width: '100%', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{height: ITEM_HEIGHT, width: '100%', justifyContent: 'center', alignItems: 'center'}}>
               <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
                 {item.taskName || item.title || '无任务名'}
               </Text>
@@ -76,21 +96,6 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-  },
-  // 滑动指示器
-  scrollIndicator: {
-    position: 'absolute',
-    top: isRound ? safeSize * 0.02 : height * 0.02,
-    alignSelf: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-    borderRadius: isRound ? safeSize * 0.03 : width * 0.03,
-    paddingHorizontal: isRound ? safeSize * 0.03 : width * 0.03,
-    paddingVertical: isRound ? safeSize * 0.012 : height * 0.012,
-    zIndex: 16,
-  },
   scrollIndicatorText: {
     color: '#fff',
     fontSize: isRound ? safeSize * 0.04 : width * 0.045,
@@ -98,7 +103,7 @@ const styles = StyleSheet.create({
   },
   emptyContainer: {
     flex: 1,
-    height: isRound ? safeSize : height,
+    height: ITEM_HEIGHT,
     justifyContent: 'center',
     alignItems: 'center',
   },
