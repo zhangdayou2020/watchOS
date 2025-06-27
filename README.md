@@ -1,97 +1,87 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# emobank-watch
 
-# Getting Started
+一个面向 Wear OS 智能手表的极简美观 React Native 项目，支持多分支协作开发，适配圆形/方形表盘，适合团队协作和企业级应用。
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## 目录
+- [项目简介](#项目简介)
+- [功能特性](#功能特性)
+- [技术栈](#技术栈)
+- [快速开始](#快速开始)
+- [项目结构](#项目结构)
+- [分支管理规范](#分支管理规范)
+- [开发规范](#开发规范)
+- [常见问题](#常见问题)
+- [贡献指南](#贡献指南)
+- [许可证](#许可证)
 
-## Step 1: Start Metro
+## 项目简介
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+本项目基于 React Native，专为 Wear OS 圆形/方形表盘适配，追求极简美观体验，支持多分支协作和企业级开发流程。
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 功能特性
+- 极简美观的多页面 UI
+- 圆形/方形表盘自适应
+- 任务/奖励/详情分页
+- Redux 全局状态管理
+- TypeScript 强类型支持
+- 多分支协作开发
 
-```sh
-# Using npm
-npm start
+## 技术栈
+- React Native
+- Redux Toolkit
+- TypeScript
+- Jest（单元测试）
+- 其他依赖详见 package.json
 
-# OR using Yarn
-yarn start
+## 快速开始
+
+```bash
+# 安装依赖
+npm install
+
+# 启动 Metro
+npx react-native start
+
+# Android 运行
+npx react-native run-android
+
+# iOS 运行
+npx react-native run-ios
 ```
 
-## Step 2: Build and run your app
+## 项目结构
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```
+.
+├── android
+├── ios
+├── src
+│   ├── api
+│   ├── components
+│   ├── screens
+│   ├── store
+│   └── ...
+├── App.tsx
+└── ...
 ```
 
-### iOS
+## 分支管理规范
+- main：生产分支，仅合并稳定代码
+- dev：日常开发分支
+- uat：测试/验收分支
+- feature/xxx：新功能分支
+- bugfix/xxx：修复分支
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+## 开发规范
+- 统一代码风格，建议使用 Prettier/ESLint
+- 提交信息建议遵循 Conventional Commits 规范
+- 合并请走 Pull Request 流程，便于代码评审
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+## 常见问题
+- Metro 端口占用、依赖安装、真机调试等问题可见 issue 区或补充
 
-```sh
-bundle install
-```
+## 贡献指南
+欢迎提 issue、PR，贡献代码！
 
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+## 许可证
+MIT
