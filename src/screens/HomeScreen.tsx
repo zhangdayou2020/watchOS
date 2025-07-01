@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {View, StyleSheet, Dimensions} from 'react-native';
 import MenuPager from '@/components/MenuPager';
 import { useDispatch, useSelector } from 'react-redux';
@@ -9,6 +9,7 @@ import { getAwardListByCid } from '@/api/gift';
 import { setAwards } from '@/store/giftSlice';
 import { getWidthPercent } from '@/utils/size';
 import { useIsFocused } from '@react-navigation/native';
+import { usePolling } from '@/hooks/usePolling';
 
 const { width, height } = Dimensions.get('window');
 const safeSize = Math.min(width, height);
@@ -20,34 +21,47 @@ const HomeScreen = () => {
   const awards = useSelector((state: RootState) => state.gifts);
   const isFocused = useIsFocused();
 
-  useEffect(() => {
-    if (!isFocused) return;
-    console.log('HomeScreen 页面聚焦，开始获取任务和奖励数据，cid:', cid);
-    if (!cid) return;
-    getTodayTaskByChild({ action: 'getTodyTaskByChild', cid, from: 'watch' })
-      .then(res => {
-        console.log('getTodayTaskByChild返回:', res);
-        const allTasks = Array.isArray(res.data)
-          ? res.data.filter((task: any) => task.type !== 'S')
-          : [];
-        const unfinished = allTasks.filter((task: any) => task.complete !== 'Y');
-        const finished = allTasks.filter((task: any) => task.complete === 'Y');
-        dispatch(setTasks({ unfinished, finished }));
-      })
-      .catch(err => {
-        console.log('获取任务失败', err);
-      });
-    getAwardListByCid({ action: 'getAwardListByCid', cid })
-      .then(res => {
-        console.log('getAwardListByCid返回:', res);
-        if (res.status === 'SUCCESS') {
-          dispatch(setAwards(res.data));
-        }
-      })
-      .catch(err => {
-        console.log('获取奖励失败', err);
-      });
-  }, [isFocused, cid]);
+  // 用 useMemo 缓存轮询任务，避免死循环
+  const pollingTasks = useMemo(() => [
+    {
+      key: 'tasks',
+      fn: () => {
+        if (!cid) return;
+        getTodayTaskByChild({ action: 'getTodyTaskByChild', cid, from: 'watch' })
+          .then(res => {
+            const allTasks = Array.isArray(res.data)
+              ? res.data.filter((task: any) => task.type !== 'S')
+              : [];
+            const unfinished = allTasks.filter((task: any) => task.complete !== 'Y');
+            const finished = allTasks.filter((task: any) => task.complete === 'Y');
+            dispatch(setTasks({ unfinished, finished }));
+          })
+          .catch(err => {
+            console.log('获取任务失败', err);
+          });
+      },
+      interval: 60 * 1000, // 1分钟
+    },
+    {
+      key: 'rewards',
+      fn: () => {
+        if (!cid) return;
+        getAwardListByCid({ action: 'getAwardListByCid', cid })
+          .then(res => {
+            if (res.status === 'SUCCESS') {
+              dispatch(setAwards(res.data));
+            }
+          })
+          .catch(err => {
+            console.log('获取奖励失败', err);
+          });
+      },
+      interval: 30 * 60 * 1000, // 30分钟
+    }
+  ], [cid, dispatch]);
+
+  // 只在页面聚焦时轮询
+  usePolling(isFocused ? pollingTasks : []);
 
   return (
     <View style={styles.container}>
