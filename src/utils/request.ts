@@ -4,6 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import store from '@/store';
+import { Alert } from 'react-native';
 
 const baseURL = 'https://pmuat.handlebook.com.hk';
 
@@ -67,6 +68,15 @@ function post<T = any>(url: string, data?: any, config?: any): Promise<T> {
 const request = {
   get,
   post,
+};
+
+const testNet = async () => {
+  try {
+    const res = await axios.get('https://pmuat.handlebook.com.hk/pm/php/data.php');
+    Alert.alert('网络OK', JSON.stringify(res.data));
+  } catch (e) {
+    Alert.alert('网络异常', JSON.stringify(e.toJSON ? e.toJSON() : e));
+  }
 };
 
 export default request;

@@ -20,7 +20,7 @@ export function getTodayTaskByChild(params: GetTodayTaskParams) {
       return res;
     })
     .catch(err => {
-      console.log('getTodayTaskByChild error:', err);
+      console.log('[API][getTodayTaskByChild] 请求失败', { params, err });
       throw err;
     });
 }

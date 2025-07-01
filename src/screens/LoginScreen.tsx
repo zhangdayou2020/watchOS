@@ -54,6 +54,7 @@ const LoginScreen = () => {
 
   const handlePair = async () => {
     setLoading(true);
+    console.log('进入吗')
     try {
       const res = await loginWithPairCode(code);
       console.log('配对接口返回:', res);
@@ -72,13 +73,16 @@ const LoginScreen = () => {
         }, 1500);
         console.log('配对成功，用户数据:', res.data);
       } else {
-        Alert.alert('配对失败', res.reason || '网络异常，请重试');
+        Alert.alert('配对失败11', res.reason || '网络异常，请重试');
       }
     } catch (e: any) {
-      Alert.alert('配对失败', e.message || '网络异常，请重试');
+      console.log('配对异常:', e);
+      Alert.alert('配对失败22', e.message || '网络异常，请重试');
     }
     setLoading(false);
   };
+
+  console.log('App started');
 
   return (
     <SafeAreaView style={styles.safeArea}>

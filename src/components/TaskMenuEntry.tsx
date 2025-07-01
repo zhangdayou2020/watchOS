@@ -3,6 +3,7 @@ import {TouchableOpacity, Text, StyleSheet, Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 import type {RootState} from '@/store';
 import { getWidthPercent, getFontSize } from '@/utils/size';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 interface Props {
   type: 'unfinished' | 'finished';
@@ -22,13 +23,21 @@ const TaskMenuEntry: React.FC<Props> = ({type, onEnterDetail}) => {
   return (
     <TouchableOpacity
       onPress={disabled ? undefined : onEnterDetail}
-      style={[styles.entry, disabled && styles.disabled]}
+      style={[styles.entry, disabled && styles.disabled, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
       activeOpacity={disabled ? 1 : 0.7}
       disabled={disabled}
     >
       <Text style={[styles.title, disabled && styles.disabledText]}>
         {type === 'unfinished' ? '未完成任务' : '已完成任务'}（{count}）
       </Text>
+      {!disabled && (
+        <Icon
+          name="chevron-right"
+          size={28}
+          color="#2196f3"
+          style={{ marginLeft: 8 }}
+        />
+      )}
     </TouchableOpacity>
   );
 };

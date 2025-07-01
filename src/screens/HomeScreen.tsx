@@ -8,6 +8,7 @@ import type { RootState } from '@/store';
 import { getAwardListByCid } from '@/api/gift';
 import { setAwards } from '@/store/giftSlice';
 import { getWidthPercent } from '@/utils/size';
+import { useIsFocused } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 const safeSize = Math.min(width, height);
@@ -17,14 +18,15 @@ const HomeScreen = () => {
   const user = useSelector((state: RootState) => state.user);
   const cid = user?.cid;
   const awards = useSelector((state: RootState) => state.gifts);
+  const isFocused = useIsFocused();
 
   useEffect(() => {
-    console.log('HomeScreen useEffect cid:', cid);
+    if (!isFocused) return;
+    console.log('HomeScreen 页面聚焦，开始获取任务和奖励数据，cid:', cid);
     if (!cid) return;
     getTodayTaskByChild({ action: 'getTodyTaskByChild', cid, from: 'watch' })
       .then(res => {
         console.log('getTodayTaskByChild返回:', res);
-        // 只保留type不等于S的任务
         const allTasks = Array.isArray(res.data)
           ? res.data.filter((task: any) => task.type !== 'S')
           : [];
@@ -33,20 +35,19 @@ const HomeScreen = () => {
         dispatch(setTasks({ unfinished, finished }));
       })
       .catch(err => {
-        // 可以加Toast或Alert提示
         console.log('获取任务失败', err);
       });
-  }, [cid]);
-
-  useEffect(() => {
-    if (!cid) return;
     getAwardListByCid({ action: 'getAwardListByCid', cid })
       .then(res => {
+        console.log('getAwardListByCid返回:', res);
         if (res.status === 'SUCCESS') {
           dispatch(setAwards(res.data));
         }
+      })
+      .catch(err => {
+        console.log('获取奖励失败', err);
       });
-  }, [cid]);
+  }, [isFocused, cid]);
 
   return (
     <View style={styles.container}>

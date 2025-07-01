@@ -19,7 +19,7 @@ export function getAwardListByCid(params: GetAwardListParams) {
       return res;
     })
     .catch(err => {
-      console.log('getAwardListByCid error:', err);
+      console.log('[API][getAwardListByCid] 请求失败', { params, err });
       throw err;
     });
 }
