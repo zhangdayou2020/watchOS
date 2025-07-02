@@ -7,6 +7,7 @@ import SettingItem from './SettingItem';
 import UnfinishedTaskDetail from './UnfinishedTaskDetail';
 import FinishedTaskDetail from './FinishedTaskDetail';
 import UserHeader from './UserHeader';
+import SettingDetail from './SettingDetail';
 import { getWidthPercent } from '@/utils/size';
 
 const { width, height } = Dimensions.get('window');
@@ -20,6 +21,7 @@ const MenuPager: React.FC<MenuPagerProps> = ({ onMenuShow }) => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
   const [showFinishedDetail, setShowFinishedDetail] = useState(false);
   const [showRewardDetail, setShowRewardDetail] = useState(false);
+  const [showSettingDetail, setShowSettingDetail] = useState(false);
 
   // 进入未完成任务详情页
   if (showUnfinishedDetail) {
@@ -50,6 +52,14 @@ const MenuPager: React.FC<MenuPagerProps> = ({ onMenuShow }) => {
     }} />;
   }
 
+  // 进入设置详情页
+  if (showSettingDetail) {
+    return <SettingDetail onBack={() => {
+      setShowSettingDetail(false);
+      onMenuShow?.();
+    }} />;
+  }
+
   // 菜单页（上下滑动切换）
   return (
     <PagerView style={styles.pagerView} orientation="vertical" initialPage={0}>
@@ -70,7 +80,7 @@ const MenuPager: React.FC<MenuPagerProps> = ({ onMenuShow }) => {
       </View>
       <View key="4" style={styles.page}>
         <UserHeader />
-        <SettingItem />
+        <SettingItem onEnterDetail={() => setShowSettingDetail(true)} />
       </View>
     </PagerView>
   );

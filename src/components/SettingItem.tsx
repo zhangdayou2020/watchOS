@@ -1,12 +1,23 @@
 import React from 'react';
-import {View, Text, StyleSheet, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, TouchableOpacity, Alert} from 'react-native';
 import { getWidthPercent, getFontSize } from '@/utils/size';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useDispatch } from 'react-redux';
+import { clearUserInfo } from '@/store/userSlice';
+import { clearTasks } from '@/store/tasksSlice';
+import { clearAwards } from '@/store/giftSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useNavigation } from '@react-navigation/native';
 
 interface TaskItemProps {
   title?: string;
   desc?: string;
   status?: 'unfinished' | 'finished';
   reward?: string;
+}
+
+interface SettingItemProps {
+  onEnterDetail?: () => void;
 }
 
 const { width, height } = Dimensions.get('window');
@@ -27,6 +38,24 @@ const TaskItem: React.FC<TaskItemProps> = ({title, desc, status, reward}) => {
   );
 };
 
+const SettingItem: React.FC<SettingItemProps> = ({ onEnterDetail }) => {
+  return (
+    <TouchableOpacity
+      onPress={onEnterDetail}
+      style={[styles.entry, { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}
+      activeOpacity={0.7}
+    >
+      <Text style={styles.title}>设置</Text>
+      <Icon
+        name="chevron-right"
+        size={28}
+        color="#2196f3"
+        style={{ marginLeft: 8 }}
+      />
+    </TouchableOpacity>
+  );
+};
+
 const styles = StyleSheet.create({
   container: {
     padding: safeSize * 0.04,
@@ -37,7 +66,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   title: {
-    fontSize: safeSize * 0.05,
+    fontSize: safeSize * 0.07,
     fontWeight: 'bold',
     color: '#1976d2',
     marginBottom: safeSize * 0.01,
@@ -56,6 +85,12 @@ const styles = StyleSheet.create({
     fontSize: safeSize * 0.04,
     color: '#ff9800',
   },
+  entry: {
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.7,
+  },
 });
 
-export default TaskItem;
+export default SettingItem;
