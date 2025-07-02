@@ -27,6 +27,7 @@ const HomeScreen = () => {
       key: 'tasks',
       fn: () => {
         if (!cid) return;
+        console.log('[轮询] 触发 getTodayTaskByChild');
         getTodayTaskByChild({ action: 'getTodyTaskByChild', cid, from: 'watch' })
           .then(res => {
             const allTasks = Array.isArray(res.data)
@@ -46,6 +47,7 @@ const HomeScreen = () => {
       key: 'rewards',
       fn: () => {
         if (!cid) return;
+        console.log('[轮询] 触发 getAwardListByCid');
         getAwardListByCid({ action: 'getAwardListByCid', cid })
           .then(res => {
             if (res.status === 'SUCCESS') {
@@ -63,9 +65,64 @@ const HomeScreen = () => {
   // 只在页面聚焦时轮询
   usePolling(isFocused ? pollingTasks : []);
 
+  // 页面聚焦时首次请求（菜单返回时也会触发）
+  useEffect(() => {
+    if (!isFocused || !cid) return;
+    console.log('[聚焦] HomeScreen 聚焦，主动请求 getTodayTaskByChild');
+    getTodayTaskByChild({ action: 'getTodyTaskByChild', cid, from: 'watch' })
+      .then(res => {
+        const allTasks = Array.isArray(res.data)
+          ? res.data.filter((task: any) => task.type !== 'S')
+          : [];
+        const unfinished = allTasks.filter((task: any) => task.complete !== 'Y');
+        const finished = allTasks.filter((task: any) => task.complete === 'Y');
+        dispatch(setTasks({ unfinished, finished }));
+      })
+      .catch(err => {
+        console.log('获取任务失败', err);
+      });
+    console.log('[聚焦] HomeScreen 聚焦，主动请求 getAwardListByCid');
+    getAwardListByCid({ action: 'getAwardListByCid', cid })
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          dispatch(setAwards(res.data));
+        }
+      })
+      .catch(err => {
+        console.log('获取奖励失败', err);
+      });
+  }, [isFocused, cid, dispatch]);
+
+  const handleMenuShow = () => {
+    if (!cid) return;
+    console.log('[菜单返回] 主动请求 getTodayTaskByChild');
+    getTodayTaskByChild({ action: 'getTodyTaskByChild', cid, from: 'watch' })
+      .then(res => {
+        const allTasks = Array.isArray(res.data)
+          ? res.data.filter((task: any) => task.type !== 'S')
+          : [];
+        const unfinished = allTasks.filter((task: any) => task.complete !== 'Y');
+        const finished = allTasks.filter((task: any) => task.complete === 'Y');
+        dispatch(setTasks({ unfinished, finished }));
+      })
+      .catch(err => {
+        console.log('获取任务失败', err);
+      });
+    console.log('[菜单返回] 主动请求 getAwardListByCid');
+    getAwardListByCid({ action: 'getAwardListByCid', cid })
+      .then(res => {
+        if (res.status === 'SUCCESS') {
+          dispatch(setAwards(res.data));
+        }
+      })
+      .catch(err => {
+        console.log('获取奖励失败', err);
+      });
+  };
+
   return (
     <View style={styles.container}>
-      <MenuPager />
+      <MenuPager onMenuShow={handleMenuShow} />
     </View>
   );
 };

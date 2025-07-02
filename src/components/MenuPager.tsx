@@ -12,7 +12,11 @@ import { getWidthPercent } from '@/utils/size';
 const { width, height } = Dimensions.get('window');
 const safeSize = Math.min(width, height);
 
-const MenuPager: React.FC = () => {
+interface MenuPagerProps {
+  onMenuShow?: () => void;
+}
+
+const MenuPager: React.FC<MenuPagerProps> = ({ onMenuShow }) => {
   const [showUnfinishedDetail, setShowUnfinishedDetail] = useState(false);
   const [showFinishedDetail, setShowFinishedDetail] = useState(false);
   const [showRewardDetail, setShowRewardDetail] = useState(false);
@@ -20,21 +24,30 @@ const MenuPager: React.FC = () => {
   // 进入未完成任务详情页
   if (showUnfinishedDetail) {
     return (
-      <UnfinishedTaskDetail onBack={() => setShowUnfinishedDetail(false)} />
+      <UnfinishedTaskDetail onBack={() => {
+        setShowUnfinishedDetail(false);
+        onMenuShow?.();
+      }} />
     );
   }
 
   // 进入已完成任务详情页
   if (showFinishedDetail) {
     return (
-      <FinishedTaskDetail onBack={() => setShowFinishedDetail(false)} />
+      <FinishedTaskDetail onBack={() => {
+        setShowFinishedDetail(false);
+        onMenuShow?.();
+      }} />
     );
   }
 
   // 进入奖励详情页
   if (showRewardDetail) {
     const GiftDetail = require('./GiftDetail').default;
-    return <GiftDetail onBack={() => setShowRewardDetail(false)} />;
+    return <GiftDetail onBack={() => {
+      setShowRewardDetail(false);
+      onMenuShow?.();
+    }} />;
   }
 
   // 菜单页（上下滑动切换）
