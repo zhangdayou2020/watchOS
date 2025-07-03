@@ -1,8 +1,11 @@
 import React, {useRef, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
-import {useSelector} from 'react-redux';
+import {View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
+import {useSelector, useDispatch} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
+import {operateComplete} from '@/api/todayTask';
+import {getTodayTaskByChild} from '@/api/todayTask';
+import {setTasks} from '@/store/tasksSlice';
 
 const {width, height} = Dimensions.get('window');
 const isRound = Math.abs(width - height) < 10;
@@ -11,9 +14,12 @@ const ITEM_HEIGHT = height; // 统一使用屏幕高度
 
 const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
+  const user = useSelector((state: RootState) => state.user.user);
+  const dispatch = useDispatch();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [globalLoading, setGlobalLoading] = useState(false);
 
   const onMomentumScrollEnd = (e: any) => {
     const offsetY = e.nativeEvent.contentOffset.y;
@@ -36,22 +42,67 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
     }
   };
 
-  // 预留完成任务逻辑
+  // 完成任务逻辑
   const handleFinishTask = async (task: any) => {
+    console.log('[handleFinishTask] 当前 task 对象:', task);
+    if (!user?.cid) {
+      Alert.alert('无法获取用户ID');
+      return;
+    }
     setLoadingId(task.id);
-    // TODO: 调用后端 finishTask 接口
-    // await finishTask({ tid: task.id });
-    // TODO: 调用刷新任务列表逻辑（如 getTodayTaskByChild）
-    setTimeout(() => {
-      setLoadingId(null);
-      // Toast.show('已推送完成请求', ...)
-    }, 1000);
+    setGlobalLoading(true);
+    const params = {
+      action: 'operateComplete',
+      cid: user.cid,
+      from: 'watch',
+      tid: task.tid,
+      status: 'C',
+    };
+    console.log('[operateComplete] 入参:', params);
+    try {
+      const res = await operateComplete(params);
+      console.log('[operateComplete] 返回:', res);
+      if (res.status === 'SUCCESS') {
+        // 刷新任务列表
+        const taskRes = await getTodayTaskByChild({
+          action: 'getTodyTaskByChild',
+          cid: user.cid,
+          from: 'watch',
+        });
+        dispatch(setTasks({
+          unfinished: Array.isArray(taskRes.data) ? taskRes.data.filter((t: any) => t.complete !== 'Y') : [],
+          finished: Array.isArray(taskRes.data) ? taskRes.data.filter((t: any) => t.complete === 'Y') : [],
+        }));
+        Alert.alert('操作成功', '任务已完成！');
+      } else {
+        console.log('[operateComplete] 失败返回:', res);
+        Alert.alert('操作失败', res.reason || '请重试');
+      }
+    } catch (e: any) {
+      console.log('[operateComplete] 异常:', e);
+      Alert.alert('网络异常', e?.message || '请重试');
+    }
+    setLoadingId(null);
+    setGlobalLoading(false);
   };
 
   return (
     <WearOSGestureHandler
       onBack={onBack}>
       <View style={{flex: 1}}>
+        {/* 全局 loading 遮罩 */}
+        {globalLoading && (
+          <View style={{
+            position: 'absolute',
+            left: 0, right: 0, top: 0, bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.15)',
+            zIndex: 999,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+            <ActivityIndicator size="large" color="#1976d2" />
+          </View>
+        )}
         {/* 指示器绝对定位在顶部 */}
         {tasks && tasks.length > 0 && (
           <View style={{ 
@@ -100,7 +151,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
                 <TouchableOpacity
                   style={styles.finishBtn}
                   onPress={() => handleFinishTask(item)}
-                  disabled={loadingId === item.id}
+                  disabled={globalLoading || loadingId === item.id}
                   activeOpacity={0.7}
                 >
                   {loadingId === item.id ? (
