@@ -16,7 +16,7 @@ const safeSize = Math.min(width, height);
 
 const HomeScreen = () => {
   const dispatch = useDispatch();
-  const user = useSelector((state: RootState) => state.user);
+  const user = useSelector((state: RootState) => state.user.user);
   const cid = user?.cid;
   const awards = useSelector((state: RootState) => state.gifts);
   const isFocused = useIsFocused();

@@ -8,8 +8,8 @@ const defaultAvatar = require('@/assets/images/avatar.png');
 const { width, height } = Dimensions.get('window');
 const safeSize = Math.min(width, height);
 
-const UserHeader = () => {
-  const user = useSelector((state: RootState) => state.user);
+const UserHeader: React.FC = () => {
+  const user = useSelector((state: RootState) => state.user.user);
 
   return (
     <View style={styles.container}>

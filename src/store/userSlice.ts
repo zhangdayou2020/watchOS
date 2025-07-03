@@ -15,17 +15,23 @@ export interface UserInfo {
   token: string;
 }
 
-const initialState: UserInfo | null = null;
+interface UserState {
+  user: UserInfo | null;
+}
+
+const initialState: UserState = {
+  user: null,
+};
 
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
     setUserInfo(state, action: PayloadAction<UserInfo>) {
-      return action.payload;
+      state.user = action.payload;
     },
-    clearUserInfo() {
-      return null;
+    clearUserInfo(state) {
+      state.user = null;
     },
   },
 });

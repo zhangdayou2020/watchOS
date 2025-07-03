@@ -1,7 +1,6 @@
 import {configureStore} from '@reduxjs/toolkit';
 import userReducer from './userSlice';
 import tasksReducer from './tasksSlice'; // 新增
-import type {UserInfo} from './userSlice';
 import giftReducer from './giftSlice';
 
 const store = configureStore({
@@ -13,10 +12,6 @@ const store = configureStore({
   },
 });
 
-export type RootState = {
-  user: UserInfo | null;
-  tasks: ReturnType<typeof tasksReducer>;
-  gifts: ReturnType<typeof giftReducer>;
-};
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 export default store;

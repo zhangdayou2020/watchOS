@@ -2,9 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Alert, SafeAreaView, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useDispatch} from 'react-redux';
 import {useLoginWithPairCode} from '@/hooks/useLoginWithPairCode';
-import {setUserInfo} from '@/store/userSlice';
 import {saveUserToStorage} from '@/utils/storage';
 import { getWidthPercent, getHeightPercent, getFontSize } from '@/utils/size';
 import Toast from 'react-native-root-toast';
@@ -33,7 +31,6 @@ const CODE_FONT_SIZE = isRound ? safeSize * 0.055 : SCREEN_WIDTH * 0.06;
 const LoginScreen = () => {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const dispatch = useDispatch();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const loginWithPairCode = useLoginWithPairCode();
@@ -59,7 +56,6 @@ const LoginScreen = () => {
       const res = await loginWithPairCode(code);
       console.log('配对接口返回:', res);
       if (res.status === 'SUCCESS') {
-        dispatch(setUserInfo(res.data));
         saveUserToStorage(res.data);
         Toast.show('配对成功，正在进入主页', {
           duration: Toast.durations.SHORT,

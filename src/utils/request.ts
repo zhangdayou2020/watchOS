@@ -24,7 +24,7 @@ instance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const url = config.url || '';
     const needToken = !noTokenApis.some(api => url.includes(api));
-    const token = (store.getState() as any).user?.token;
+    const token = (store.getState() as any).user?.user?.token;
     if (token && needToken) {
       config.headers = {
         ...(config.headers || {}),

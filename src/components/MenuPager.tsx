@@ -8,7 +8,6 @@ import UnfinishedTaskDetail from './UnfinishedTaskDetail';
 import FinishedTaskDetail from './FinishedTaskDetail';
 import UserHeader from './UserHeader';
 import SettingDetail from './SettingDetail';
-import { getWidthPercent } from '@/utils/size';
 
 const { width, height } = Dimensions.get('window');
 const safeSize = Math.min(width, height);
