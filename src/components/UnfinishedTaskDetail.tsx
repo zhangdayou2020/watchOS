@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react';
-import {View, Text, StyleSheet, Dimensions, FlatList} from 'react-native';
+import {View, Text, StyleSheet, Dimensions, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
 import {useSelector} from 'react-redux';
 import WearOSGestureHandler from './WearOSGestureHandler';
 import type {RootState} from '@/store';
@@ -13,6 +13,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const tasks = useSelector((state: RootState) => state.tasks.unfinished);
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const onMomentumScrollEnd = (e: any) => {
     const offsetY = e.nativeEvent.contentOffset.y;
@@ -33,6 +34,18 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
       flatListRef.current?.scrollToIndex({index, animated: true});
       setCurrentIndex(index);
     }
+  };
+
+  // 预留完成任务逻辑
+  const handleFinishTask = async (task: any) => {
+    setLoadingId(task.id);
+    // TODO: 调用后端 finishTask 接口
+    // await finishTask({ tid: task.id });
+    // TODO: 调用刷新任务列表逻辑（如 getTodayTaskByChild）
+    setTimeout(() => {
+      setLoadingId(null);
+      // Toast.show('已推送完成请求', ...)
+    }, 1000);
   };
 
   return (
@@ -82,6 +95,21 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
               <Text style={styles.category}>{item.taskCategory || item.desc || '无分类'}</Text>
               <Text style={styles.integral}>+{item.taskIntegral || item.reward || 0} 积分</Text>
               <Text style={styles.statusTodo}>{item.complete === 'Y' ? '已完成' : '未完成'}</Text>
+              {/* 完成按钮 */}
+              {item.complete !== 'Y' && (
+                <TouchableOpacity
+                  style={styles.finishBtn}
+                  onPress={() => handleFinishTask(item)}
+                  disabled={loadingId === item.id}
+                  activeOpacity={0.7}
+                >
+                  {loadingId === item.id ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text style={styles.finishBtnText}>完成</Text>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           )}
           getItemLayout={(_, index) => ({
@@ -140,6 +168,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: isRound ? safeSize * 0.005 : height * 0.005,
     fontWeight: '500',
+  },
+  finishBtn: {
+    marginTop: safeSize * 0.04,
+    backgroundColor: '#1976d2',
+    borderRadius: safeSize * 0.04,
+    paddingVertical: safeSize * 0.025,
+    paddingHorizontal: safeSize * 0.12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  finishBtnText: {
+    color: '#fff',
+    fontSize: safeSize * 0.055,
+    fontWeight: 'bold',
   },
 });
 
