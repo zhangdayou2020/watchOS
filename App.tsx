@@ -9,6 +9,7 @@ import {Provider, useDispatch} from 'react-redux';
 import store from '@/store';
 import {getUserFromStorage} from '@/utils/storage';
 import {setUserInfo} from '@/store/userSlice';
+import { RootSiblingParent } from 'react-native-root-siblings';
 
 const Stack = createNativeStackNavigator();
 
@@ -41,7 +42,9 @@ function AppContent() {
 export default function App() {
   return (
     <Provider store={store}>
-      <AppContent />
+      <RootSiblingParent>
+        <AppContent />
+      </RootSiblingParent>
     </Provider>
   );
 }

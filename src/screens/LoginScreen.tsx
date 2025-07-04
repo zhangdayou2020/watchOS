@@ -1,10 +1,9 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Alert, SafeAreaView, Dimensions} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, StyleSheet, TouchableOpacity, Alert, SafeAreaView, Dimensions, ActivityIndicator} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import type {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useLoginWithPairCode} from '@/hooks/useLoginWithPairCode';
 import {saveUserToStorage} from '@/utils/storage';
-import { getWidthPercent, getHeightPercent, getFontSize } from '@/utils/size';
 import Toast from 'react-native-root-toast';
 
 type RootStackParamList = {
@@ -35,6 +34,15 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
   const loginWithPairCode = useLoginWithPairCode();
 
+  useEffect(() => {
+    Toast.show('测试 Toast 是否显示', {
+      duration: Toast.durations.SHORT,
+      position: Toast.positions.CENTER,
+      backgroundColor: '#4caf50',
+      textColor: '#fff',
+    });
+  }, []);
+
   const handlePress = (key: string) => {
     if (key === 'del') {
       setCode(code.slice(0, -1));
@@ -60,6 +68,8 @@ const LoginScreen = () => {
         Toast.show('配对成功，正在进入主页', {
           duration: Toast.durations.SHORT,
           position: Toast.positions.CENTER,
+          backgroundColor: '#4caf50', // 绿色
+          textColor: '#fff',
           shadow: true,
           animation: true,
           hideOnPress: true,
@@ -69,11 +79,27 @@ const LoginScreen = () => {
         }, 1500);
         console.log('配对成功，用户数据:', res.data);
       } else {
-        Alert.alert('配对失败11', res.reason || '网络异常，请重试');
+        Toast.show('配对失败，请重新配对', {
+          duration: Toast.durations.SHORT,
+          position: Toast.positions.CENTER,
+          backgroundColor: '#f44336', // 红色
+          textColor: '#fff',
+          shadow: true,
+          animation: true,
+          hideOnPress: true,
+        });
       }
     } catch (e: any) {
       console.log('配对异常:', e);
-      Alert.alert('配对失败22', e.message || '网络异常，请重试');
+      Toast.show('配对失败，请重新配对', {
+        duration: Toast.durations.SHORT,
+        position: Toast.positions.CENTER,
+        backgroundColor: '#f44336', // 红色
+        textColor: '#fff',
+        shadow: true,
+        animation: true,
+        hideOnPress: true,
+      });
     }
     setLoading(false);
   };
@@ -109,18 +135,31 @@ const LoginScreen = () => {
                   onPress={() => handlePress(key)}
                   disabled={loading || (key === 'ok' && code.length !== 6)}
                   activeOpacity={0.7}>
-                  <Text
-                    style={[
-                      styles.keyText,
-                      key === 'ok'
-                        ? styles.okKeyText
-                        : key === 'del'
-                        ? styles.delKeyText
-                        : null,
-                      { fontSize: KEY_FONT_SIZE },
-                    ]}>
-                    {key === 'del' ? '⌫' : key === 'ok' ? '配对' : key}
-                  </Text>
+                  {key === 'ok' ? (
+                    loading ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <Text
+                        style={[
+                          styles.keyText,
+                          styles.okKeyText,
+                          { fontSize: KEY_FONT_SIZE },
+                        ]}
+                      >
+                        配对
+                      </Text>
+                    )
+                  ) : (
+                    <Text
+                      style={[
+                        styles.keyText,
+                        key === 'del' ? styles.delKeyText : null,
+                        { fontSize: KEY_FONT_SIZE },
+                      ]}
+                    >
+                      {key === 'del' ? '⌫' : key}
+                    </Text>
+                  )}
                 </TouchableOpacity>
               ))}
             </View>
@@ -154,11 +193,11 @@ const styles = StyleSheet.create({
     width: CODE_DIGIT_SIZE,
     height: CODE_DIGIT_SIZE * 1.2,
     marginHorizontal: isRound ? safeSize * 0.01 : SCREEN_WIDTH * 0.01,
-    borderBottomWidth: 2,
+    borderBottomWidth: isRound ? safeSize * 0.008 : SCREEN_WIDTH * 0.008, // 比例化
     borderColor: '#1976d2',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
+    borderRadius: isRound ? safeSize * 0.018 : SCREEN_WIDTH * 0.018, // 比例化
     backgroundColor: '#f8fafd',
     elevation: 1,
   },
@@ -184,23 +223,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 1,
+    marginHorizontal: isRound ? safeSize * 0.018 : SCREEN_WIDTH * 0.018, // 新增，按钮横向间距
   },
   keyText: {
     fontWeight: 'bold',
     color: '#1976d2',
+    fontSize: KEY_FONT_SIZE, // 比例化
   },
   okKey: {
     backgroundColor: '#2196f3',
   },
   okKeyText: {
     color: '#fff',
-    fontSize: KEY_FONT_SIZE * 0.93,
+    fontSize: KEY_FONT_SIZE * 0.93, // 比例化
   },
   delKey: {
     backgroundColor: '#eee',
   },
   delKeyText: {
     color: '#888',
+    fontSize: KEY_FONT_SIZE * 0.93, // 比例化
   },
   keyDisabled: {
     backgroundColor: '#b0c4de',
