@@ -6,6 +6,7 @@ import type {RootState} from '@/store';
 import {operateComplete} from '@/api/todayTask';
 import {getTodayTaskByChild} from '@/api/todayTask';
 import {setTasks} from '@/store/tasksSlice';
+import Toast from 'react-native-root-toast';
 
 const {width, height} = Dimensions.get('window');
 const isRound = Math.abs(width - height) < 10;
@@ -13,17 +14,21 @@ const safeSize = isRound ? Math.min(width, height) : Math.max(width, height);
 const ITEM_HEIGHT = height; // 统一使用屏幕高度
 
 const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
-  const tasks = useSelector((state: RootState) => state.tasks.unfinished);
+  const tasksRaw = useSelector((state: RootState) => state.tasks.unfinished);
+  // 预留过滤特殊/隐藏任务的逻辑（如有需求可补充）
+  const tasks = tasksRaw; // 这里可加 .filter(t => !t.special)
   const user = useSelector((state: RootState) => state.user.user);
   const dispatch = useDispatch();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [globalLoading, setGlobalLoading] = useState(false);
 
   const onMomentumScrollEnd = (e: any) => {
     const offsetY = e.nativeEvent.contentOffset.y;
-    const index = Math.round(offsetY / ITEM_HEIGHT);
+    let index = Math.round(offsetY / ITEM_HEIGHT);
+    // 修正 index 不超过 tasks.length-1
+    if (index >= tasks.length) index = tasks.length - 1;
+    if (index < 0) index = 0;
     setCurrentIndex(index);
     
     // 确保滚动到精确位置
@@ -46,11 +51,10 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
   const handleFinishTask = async (task: any) => {
     console.log('[handleFinishTask] 当前 task 对象:', task);
     if (!user?.cid) {
-      Alert.alert('无法获取用户ID');
+      Toast.show('无法获取用户ID', { backgroundColor: '#f44336', textColor: '#fff', position: Toast.positions.CENTER });
       return;
     }
     setLoadingId(task.id);
-    setGlobalLoading(true);
     const params = {
       action: 'operateComplete',
       cid: user.cid,
@@ -69,40 +73,32 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
           cid: user.cid,
           from: 'watch',
         });
-        dispatch(setTasks({
-          unfinished: Array.isArray(taskRes.data) ? taskRes.data.filter((t: any) => t.complete !== 'Y') : [],
-          finished: Array.isArray(taskRes.data) ? taskRes.data.filter((t: any) => t.complete === 'Y') : [],
-        }));
-        Alert.alert('操作成功', '任务已完成！');
+        const unfinished = Array.isArray(taskRes.data) ? taskRes.data.filter((t: any) => t.complete !== 'Y') : [];
+        const finished = Array.isArray(taskRes.data) ? taskRes.data.filter((t: any) => t.complete === 'Y') : [];
+        dispatch(setTasks({ unfinished, finished }));
+        Toast.show('任务已完成！', { backgroundColor: '#4caf50', textColor: '#fff', position: Toast.positions.CENTER });
+        // 如果未完成任务为空，自动返回并提示
+        if (unfinished.length === 0) {
+          setTimeout(() => {
+            Toast.show('全部任务已完成', { backgroundColor: '#4caf50', textColor: '#fff', position: Toast.positions.CENTER });
+            onBack && onBack();
+          }, 800);
+        }
       } else {
         console.log('[operateComplete] 失败返回:', res);
-        Alert.alert('操作失败', res.reason || '请重试');
+        Toast.show(res.reason || '操作失败，请重试', { backgroundColor: '#f44336', textColor: '#fff', position: Toast.positions.CENTER });
       }
     } catch (e: any) {
       console.log('[operateComplete] 异常:', e);
-      Alert.alert('网络异常', e?.message || '请重试');
+      Toast.show(e?.message || '网络异常，请重试', { backgroundColor: '#f44336', textColor: '#fff', position: Toast.positions.CENTER });
     }
     setLoadingId(null);
-    setGlobalLoading(false);
   };
 
   return (
     <WearOSGestureHandler
       onBack={onBack}>
       <View style={{flex: 1}}>
-        {/* 全局 loading 遮罩 */}
-        {globalLoading && (
-          <View style={{
-            position: 'absolute',
-            left: 0, right: 0, top: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.15)',
-            zIndex: 999,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <ActivityIndicator size="large" color="#1976d2" />
-          </View>
-        )}
         {/* 指示器绝对定位在顶部 */}
         {tasks && tasks.length > 0 && (
           <View style={{ 
@@ -118,7 +114,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
             borderRadius: safeSize * 0.02
           }}>
             <Text style={styles.scrollIndicatorText}>
-              {currentIndex + 1} / {tasks.length}
+              {Math.min(currentIndex + 1, tasks.length)} / {tasks.length}
             </Text>
           </View>
         )}
@@ -151,7 +147,7 @@ const UnfinishedTaskDetail: React.FC<{onBack: () => void}> = ({onBack}) => {
                 <TouchableOpacity
                   style={styles.finishBtn}
                   onPress={() => handleFinishTask(item)}
-                  disabled={globalLoading || loadingId === item.id}
+                  disabled={loadingId === item.id}
                   activeOpacity={0.7}
                 >
                   {loadingId === item.id ? (

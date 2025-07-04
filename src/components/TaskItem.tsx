@@ -1,6 +1,5 @@
 import React from 'react';
 import {View, Text, StyleSheet, Dimensions} from 'react-native';
-import { getWidthPercent, getFontSize } from '@/utils/size';
 
 interface TaskItemProps {
   title: string;
